@@ -1,0 +1,9 @@
+/* Adicione estilos específicos para a página de cadastro aqui, se necessário. */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.register-link a {
+    color: #28a745; /* Exemplo: mudar a cor do link para cadastro */
+}

@@ -1,0 +1,120 @@
+/* Estilos específicos para a página inicial */
+
+body {
+    background-color: #f4f4f9; /* Uma cor de fundo suave */
+    color: #333;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.user-menu-container {
+    position: relative; /* Base para o posicionamento do menu de logout */
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* Torna a imagem redonda */
+    cursor: pointer;
+    border: 2px solid #ccc;
+    transition: border-color 0.3s;
+    /* [ADICIONADO] Estilo para o avatar (se for um ícone/letra) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    background-color: #007bff;
+    color: white;
+}
+
+.user-avatar:hover {
+    border-color: #007bff; /* Efeito visual ao passar o mouse */
+}
+
+.logout-menu {
+    position: absolute;
+    top: 60px; /* Posiciona o menu abaixo do avatar */
+    right: 0;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 10px;
+    width: 200px; /* Aumentado para o nome */
+    text-align: center;
+    display: none; /* Inicialmente oculto */
+    z-index: 1000;
+}
+
+.logout-menu.show {
+    display: block; /* Exibe o menu quando a classe 'show' é adicionada via JavaScript */
+}
+
+/* [NOVO ESTILO] Estilo para o nome do usuário exibido no menu */
+#user-full-name {
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 10px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee; /* Separador acima do botão de Sair */
+    word-wrap: break-word; /* Garante que nomes longos quebrem a linha */
+}
+
+#logout-btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #dc3545; /* Cor de botão de ação de perigo (vermelho) */
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#logout-btn:hover {
+    background-color: #c82333; /* Cor mais escura ao passar o mouse */
+}
+
+main {
+    max-width: 960px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.content h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.content p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #555;
+}

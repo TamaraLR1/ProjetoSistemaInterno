@@ -1,0 +1,129 @@
+/* Estilos para a página de login */
+
+/* Estilo para o corpo da página de login */
+body {
+    background-color: #f0f2f5; /* Cor de fundo suave */
+    font-family: Arial, sans-serif;
+    display: flex; /* Usa flexbox para centralizar o conteúdo */
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Ocupa a altura total da viewport */
+    margin: 0;
+}
+
+/* Contêiner principal do formulário */
+.login-container {
+    background-color: #fff;
+    padding: 2.5em; /* Espaçamento interno */
+    border-radius: 8px; /* Cantos arredondados */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    width: 100%;
+    max-width: 400px; /* Largura máxima para telas maiores */
+    text-align: center;
+}
+
+/* Título do formulário */
+.login-form h2 {
+    margin-bottom: 1.5em;
+    color: #333;
+    font-size: 1.8em;
+}
+
+/* Grupo de entrada de dados */
+.input-group {
+    margin-bottom: 1.5em;
+    text-align: left;
+}
+
+/* Rótulo dos campos */
+.input-group label {
+    display: block; /* Ocupa a linha toda */
+    margin-bottom: 0.5em;
+    color: #555;
+    font-weight: bold;
+}
+
+/* Campos de entrada (input) */
+.input-group input {
+    width: 100%;
+    padding: 0.9em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Garante que padding não aumente o tamanho total */
+    font-size: 1em;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Efeito ao focar nos campos de entrada */
+.input-group input:focus {
+    border-color: #007bff; /* Cor da borda ao focar */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Sombra para destaque */
+    outline: none; /* Remove o contorno padrão do navegador */
+}
+
+/* Botão de envio */
+.login-form button {
+    width: 100%;
+    padding: 1em;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Efeito ao passar o mouse sobre o botão */
+.login-form button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilo para a div de mensagem */
+#message {
+    margin: 1em 0;
+    padding: 0.8em;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* Estilo específico para mensagens de erro */
+#message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Link para a página de cadastro */
+.register-link {
+    margin-top: 1.5em;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.register-link a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+.register-link a {
+    color: #28a745; /* Exemplo: mudar a cor do link para cadastro */
+}
+
+/* Media Queries para responsividade */
+@media (max-width: 480px) {
+    .login-container {
+        margin: 20px;
+        padding: 1.5em;
+    }
+
+    .login-form h2 {
+        font-size: 1.5em;
+    }
+}
