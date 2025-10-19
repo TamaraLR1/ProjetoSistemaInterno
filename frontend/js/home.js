@@ -1,3 +1,5 @@
+// home.js
+
 document.addEventListener('DOMContentLoaded', () => {
     // Seleciona os elementos do DOM
     const userAvatar = document.querySelector('.user-avatar');
@@ -30,12 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Token inválido/ausente, redireciona para login
                 console.warn('Sessão expirada ou não autenticada. Redirecionando...');
                 window.location.href = 'login.html';
-            } else {
-                console.error('Erro ao buscar informações do usuário:', response.statusText);
             }
         } catch (error) {
-            console.error('Erro de conexão ao buscar dados:', error);
-            // Em caso de erro de rede ou conexão, assume-se não autenticado
+            console.error('Erro na requisição de informações do usuário:', error);
+            // Em caso de erro de conexão, assume-se não autenticado
             window.location.href = 'login.html';
         }
     };
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Alterna a visibilidade do menu de logout ao clicar no avatar
         userAvatar.addEventListener('click', (event) => {
             logoutMenu.classList.toggle('show');
-            event.stopPropagation(); 
+            event.stopPropagation(); // Impede que o clique se propague para o document
         });
 
         // Oculta o menu se o usuário clicar em qualquer lugar fora dele
@@ -65,11 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Chamar a API de logout do backend para limpar o cookie HttpOnly
                 await fetch('http://localhost:5000/api/logout', {
                     method: 'POST',
-                    credentials: 'include', 
+                    credentials: 'include', // ESSENCIAL: Envia o cookie para o backend limpá-lo
                 });
                 
                 // Redirecionar
-                window.location.href = 'login.html';
+                window.location.href = '../login.html';
             } catch (error) {
                 console.error('Erro ao fazer logout:', error);
                 alert('Erro ao fazer logout. Tente novamente.');

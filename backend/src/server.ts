@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser'; // [NOVO]
 import userRoutes from './routes/user.routes';
 import authRoutes from './routes/auth.routes'; 
+import productRoutes from './routes/product.routes'; // [NOVO] Importa as rotas de produto
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser()); // [NOVO] Usar o cookie-parser
 
+app.use('/api', productRoutes);
 app.use('/api', userRoutes);
 app.use('/api', authRoutes);
 

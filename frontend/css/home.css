@@ -27,17 +27,16 @@ h1 {
 }
 
 .user-menu-container {
-    position: relative; /* Base para o posicionamento do menu de logout */
+    position: relative; 
 }
 
 .user-avatar {
     width: 50px;
     height: 50px;
-    border-radius: 50%; /* Torna a imagem redonda */
+    border-radius: 50%;
     cursor: pointer;
     border: 2px solid #ccc;
     transition: border-color 0.3s;
-    /* [ADICIONADO] Estilo para o avatar (se for um ícone/letra) */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -47,42 +46,41 @@ h1 {
 }
 
 .user-avatar:hover {
-    border-color: #007bff; /* Efeito visual ao passar o mouse */
+    border-color: #007bff;
 }
 
 .logout-menu {
     position: absolute;
-    top: 60px; /* Posiciona o menu abaixo do avatar */
+    top: 60px;
     right: 0;
     background-color: #ffffff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     border-radius: 8px;
     padding: 10px;
-    width: 200px; /* Aumentado para o nome */
+    width: 200px; 
     text-align: center;
-    display: none; /* Inicialmente oculto */
+    display: none;
     z-index: 1000;
 }
 
 .logout-menu.show {
-    display: block; /* Exibe o menu quando a classe 'show' é adicionada via JavaScript */
+    display: block;
 }
 
-/* [NOVO ESTILO] Estilo para o nome do usuário exibido no menu */
 #user-full-name {
     font-weight: bold;
     color: #333;
     margin: 0 0 10px 0;
     padding-bottom: 10px;
-    border-bottom: 1px solid #eee; /* Separador acima do botão de Sair */
-    word-wrap: break-word; /* Garante que nomes longos quebrem a linha */
+    border-bottom: 1px solid #eee;
+    word-wrap: break-word;
 }
 
 #logout-btn {
     width: 100%;
     padding: 10px;
     border: none;
-    background-color: #dc3545; /* Cor de botão de ação de perigo (vermelho) */
+    background-color: #dc3545;
     color: white;
     cursor: pointer;
     border-radius: 5px;
@@ -91,13 +89,104 @@ h1 {
 }
 
 #logout-btn:hover {
-    background-color: #c82333; /* Cor mais escura ao passar o mouse */
+    background-color: #c82333;
 }
 
-main {
-    max-width: 960px;
-    margin: 20px auto;
+/* ------------------------------------------- */
+/* ESTILOS PARA O LAYOUT COM MENU LATERAL */
+/* ------------------------------------------- */
+
+/* Contêiner principal para o layout de duas colunas (Sidebar + Conteúdo) */
+.page-container {
+    display: flex; /* Habilita Flexbox */
+    min-height: calc(100vh - 90px); /* Ajusta a altura para telas maiores, subtraindo a altura aproximada do header */
+}
+
+/* Estilos para o Menu Lateral (Sidebar) */
+.sidebar {
+    width: 250px; 
+    background-color: #001640; /* Cor de fundo do menu */
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); 
+    flex-shrink: 0; 
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    margin: 10px 0;
+    min-height: calc(100vh - 110px);
+}
+
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar nav ul li a {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #ffffff; /* Cor do texto dos links para branco */
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s;
+    border-left: 5px solid transparent; 
+}
+
+.sidebar nav ul li a:hover {
+    background-color: #0056b3; /* Cor ao passar o mouse */
+    color: white;
+}
+
+/* Destaque para o link ativo do MENU PRINCIPAL */
+.sidebar nav ul li a.active {
+    /* CORREÇÃO APLICADA: Fundo é #001640. Destaque apenas na borda esquerda. */
+    background-color: #001640; 
+    color: #ffffff; 
+    border-left-color: #ffffff; 
+}
+
+/* Estilos para o link principal do módulo de submenu */
+.sidebar nav ul li.has-submenu > a {
+    font-weight: bold;
+    color: #ffffff; 
+    border-left-color: #ffffff;
+}
+
+.sidebar nav ul li.has-submenu > a:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para o submenu e seus itens */
+.sidebar .submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #001640; /* Cor de fundo do submenu */
+}
+
+.sidebar .submenu li a {
+    padding: 10px 20px 10px 40px; 
+    font-size: 0.95em;
+    color: #ffffff;
+    border-left: none; 
+}
+
+.sidebar .submenu li a:hover {
+    background-color: #004085; 
+    color: white;
+}
+
+/* Destaque para o sub-item ativo - CORRIGIDO AQUI */
+.sidebar .submenu li a.active {
+    /* CORREÇÃO APLICADA: Usando a cor de hover do submenu para um destaque sutil e consistente, removendo o azul claro (#3399ff) */
+    background-color: #004085; 
+    color: #ffffff;
+}
+
+/* Estilos para o Conteúdo Principal */
+.main-content {
+    flex-grow: 1; 
     padding: 20px;
+    padding-top: 30px; 
 }
 
 .content {

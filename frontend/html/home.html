@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela de Início</title>
+    <link rel="stylesheet" href="../css/home.css">
+</head>
+<body>
+    <header>
+        <h1>Bem-vindo(a) à sua página inicial!</h1>
+        <div class="user-menu-container">
+            <img src="../assets/usuario.png" alt="Avatar do Usuário" class="user-avatar">
+            <div class="logout-menu">
+                <p id="user-full-name"></p>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-container">
+        
+        <aside class="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="#">Perfil</a></li>
+                    
+                    <li class="has-submenu">
+                        <a href="#" class="active">Produtos</a> 
+                        <ul class="submenu">
+                            <li><a href="./produtos/cadastro_produtos.html">Cadastro de produtos</a></li> 
+                            <li><a href="#">Todos os produtos</a></li>
+                        </ul>
+                    </li>
+                    
+                    <li><a href="#">Ajuda</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section class="content">
+                <h2>Seu Conteúdo Principal</h2>
+                <p>Este é o conteúdo exclusivo para usuários logados. Você pode adicionar aqui as funcionalidades principais da sua aplicação.</p>
+            </section>
+        </main>
+    </div>
+
+    <script src="../js/home.js"></script>
+</body>
+</html>

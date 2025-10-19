@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     // O cookie HttpOnly foi definido pelo backend
-                    window.location.href = 'home.html';
+                    window.location.href = './html/home.html';
                 } else {
                     messageDiv.textContent = data.message || 'Erro ao fazer login. Verifique suas credenciais.';
                     messageDiv.className = 'error';
