@@ -44,7 +44,9 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
     // 3. Preparação do URL da Imagem
     let image_url: string | null = null;
     if (file) {
-        image_url = file.path; 
+// CORREÇÃO: Padronizar o caminho para usar barras frontais ('/')
+        // Isso resolve o problema de URLs em sistemas Windows/Linux/DB
+        image_url = file.path.replace(/\\/g, '/');
     }
 
     // 4. Inserção no Banco de Dados
@@ -77,5 +79,26 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
         }
         
         return res.status(500).json({ message: 'Erro interno ao cadastrar produto.' });
+    }
+};
+
+
+// NOVO: Função para listar todos os produtos
+export const listProducts = async (req: Request, res: Response) => {
+    try {
+        // Seleciona todos os campos necessários da tabela products
+        // Você pode incluir um JOIN com a tabela users se quiser mostrar o nome do vendedor
+        const [rows]: any = await pool.execute(
+            'SELECT id, name, description, price, image_url, created_at FROM products ORDER BY created_at DESC'
+        );
+        
+        devLog(`Listando ${rows.length} produtos.`);
+
+        // Retorna a lista de produtos
+        return res.status(200).json(rows);
+        
+    } catch (error) {
+        errorLog('Erro ao buscar lista de produtos no DB.', error);
+        return res.status(500).json({ message: 'Erro interno ao buscar produtos.' });
     }
 };
