@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const descriptionInput = document.getElementById('product-description');
     const priceInput = document.getElementById('product-price');
     const imagesInput = document.getElementById('product-images'); 
-    const currentImage = document.getElementById('current-image');
+    // Elemento para exibir MÚLTIPLAS imagens
+    const currentImagesContainer = document.getElementById('current-images-container'); 
     const statusMessage = document.getElementById('status-message');
     const titleElement = document.getElementById('edit-page-title');
     
@@ -30,82 +31,127 @@ document.addEventListener('DOMContentLoaded', () => {
     form.parentElement.style.display = 'block'; // Mostra o card do formulário
 
     // ===============================================
-    // 3. FUNÇÃO PARA CARREGAR OS DADOS ATUAIS (GET)
+    // 3. FUNÇÃO PARA CARREGAR DETALHES DO PRODUTO
     // ===============================================
     const fetchProductDetails = async () => {
-        statusMessage.textContent = 'Carregando detalhes do produto...';
+        statusMessage.textContent = 'Carregando detalhes...';
         statusMessage.className = 'message-box';
-        form.style.display = 'none';
 
         try {
-            // Requisição GET para o endpoint com ID
             const response = await fetch(`http://localhost:5000/api/products/${productID}`, {
                 method: 'GET',
                 credentials: 'include',
             });
 
             if (response.status === 401 || response.status === 403) {
+                // Sessão expirada ou não autorizado
                 alert('Sessão expirada ou acesso negado. Redirecionando para o login.');
-                window.location.href = '../../login.html'; 
+                window.location.href = '../../login.html';
                 return;
             }
-
+            
             if (!response.ok) {
-                const data = await response.json().catch(() => ({ message: `Erro HTTP: ${response.status}` }));
-                throw new Error(data.message || 'Erro ao carregar produto.');
+                throw new Error('Falha ao buscar detalhes do produto.');
             }
 
             const product = await response.json();
-            
-            // Preenche o formulário
-            nameInput.value = product.name || '';
-            descriptionInput.value = product.description || '';
-            // Formata o preço com 2 casas decimais
-            priceInput.value = parseFloat(product.price).toFixed(2); 
 
-            // Exibe a imagem atual
-            const imageUrl = product.image_url ? `http://localhost:5000/${product.image_url}` : placeholderPath;
-            currentImage.src = imageUrl;
-            
-            statusMessage.textContent = 'Detalhes carregados com sucesso. Pronto para editar.';
-            statusMessage.className = 'message-box success';
-            form.style.display = 'block'; // Mostra o formulário
-            
+            // 🌟 PREENCHER O FORMULÁRIO
+            nameInput.value = product.name;
+            descriptionInput.value = product.description || '';
+            // Formata o preço para o padrão brasileiro (vírgula)
+            priceInput.value = parseFloat(product.price).toFixed(2).replace('.', ','); 
+
+            // 🌟 TRATAMENTO DE IMAGENS ATUAIS
+            currentImagesContainer.innerHTML = ''; // Limpa o container
+
+            if (product.image_urls && product.image_urls.length > 0) {
+                product.image_urls.forEach(imageUrl => {
+                    const imgUrl = `http://localhost:5000/${imageUrl}`;
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imgUrl;
+                    imgElement.alt = product.name;
+                    imgElement.className = 'product-image-preview';
+
+                    const imageWrapper = document.createElement('div');
+                    imageWrapper.className = 'current-image-container'; // Usa o CSS de container
+                    imageWrapper.appendChild(imgElement);
+                    
+                    // Nota: A lógica de exclusão de imagens é complexa e requer uma nova rota no backend (não incluída aqui), 
+                    // mas é aqui que você adicionaria um botão de exclusão.
+
+                    currentImagesContainer.appendChild(imageWrapper);
+                });
+            } else {
+                // Caso não haja imagens, exibe o placeholder
+                currentImagesContainer.innerHTML = `
+                    <div class="current-image-container">
+                        <img src="${placeholderPath}" alt="Sem imagem" class="product-image-preview">
+                    </div>
+                `;
+            }
+
+            // 🌟 VERIFICAR PERMISSÃO DE EDIÇÃO
+            if (!product.isOwner) {
+                // Se não for o dono, desabilita o formulário
+                form.querySelectorAll('input, textarea, button').forEach(el => el.disabled = true);
+                statusMessage.textContent = 'Você só pode visualizar este produto. A edição está desabilitada.';
+                statusMessage.className = 'message-box error';
+            } else {
+                statusMessage.textContent = '';
+                statusMessage.className = '';
+            }
+
         } catch (error) {
-            console.error('Erro ao carregar detalhes do produto:', error);
-            statusMessage.textContent = `Erro: ${error.message}`;
+            console.error('Erro ao buscar detalhes do produto:', error);
+            statusMessage.textContent = 'Erro ao carregar detalhes do produto.';
             statusMessage.className = 'message-box error';
         }
     };
-    
+
+
     // ===============================================
-    // 4. FUNÇÃO PARA ENVIAR AS ALTERAÇÕES (PUT)
+    // 4. FUNÇÃO PARA LIDAR COM A SUBMISSÃO DE EDIÇÃO (APENAS DADOS DE TEXTO)
     // ===============================================
     const handleEditSubmit = async (event) => {
         event.preventDefault();
         
+        // Validação básica (mesmo que os inputs sejam required)
+        if (!nameInput.value || !priceInput.value) {
+            alert('Nome e Preço são obrigatórios!');
+            return;
+        }
+
         statusMessage.textContent = 'Salvando alterações...';
         statusMessage.className = 'message-box';
+
+        // Coleta dos dados
+        const name = nameInput.value;
+        const description = descriptionInput ? descriptionInput.value : '';
+        const price = parseFloat(priceInput.value.replace(',', '.'));
         
-        // 1. Cria o objeto FormData para enviar texto e o arquivo (imagem)
-        const formData = new FormData();
-        formData.append('name', nameInput.value);
-        formData.append('description', descriptionInput.value);
-        formData.append('price', priceInput.value);
-        
-        // 2. Adiciona o arquivo SOMENTE se o usuário o tiver selecionado
-        if (imagesInput.files && imagesInput.files.length > 0) {
-            // O nome do campo aqui ('product-images') DEVE CORRESPONDER ao que está no product.routes.ts
-            formData.append('product-images', imagesInput.files[0]);
-        }
-        
+        // 🌟 Usamos FormData APENAS para enviar dados de texto na rota PUT/PATCH
+        // O Multer tem um middleware chamado `upload.none()` que leria FormData sem arquivos
+        // Mas a forma mais simples e robusta para dados de texto é JSON puro, 
+        // já que a rota PUT do backend ainda não foi ajustada para Multer.none().
+        // *************************************************************************
+        // ** Manteremos o envio como JSON puro para a rota PUT/products/:id atual **
+        // *************************************************************************
+        const updateData = {
+            name: name,
+            description: description,
+            price: price.toFixed(2)
+        };
+
+
         try {
-            // 3. Usa o método PUT para a rota de atualização
             const response = await fetch(`http://localhost:5000/api/products/${productID}`, {
                 method: 'PUT',
-                // Não defina Content-Type; o FormData cuida disso, incluindo o boundary
-                body: formData, 
-                credentials: 'include', 
+                headers: {
+                    'Content-Type': 'application/json', // Importante para enviar JSON
+                },
+                body: JSON.stringify(updateData),
+                credentials: 'include',
             });
 
             const data = await response.json().catch(() => ({ message: 'Resposta não JSON' }));

@@ -1,15 +1,20 @@
 // Caminho: src/routes/product.routes.ts
 
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express'; // Importar RequestHandler
 import multer from 'multer';
 import { protect } from '../middlewares/auth.middleware';
-import { createProduct, listProducts, getProductDetails, updateProduct } from '../controllers/product.controller'; 
+import { 
+    createProduct, 
+    listProducts, 
+    getProductDetails, 
+    updateProduct 
+} from '../controllers/product.controller'; 
 import path from 'path'; 
 
 const router = Router();
 
 // =======================================================
-// Configuração do Multer (Permanece inalterada)
+// Configuração do Multer (inalterada)
 // =======================================================
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -25,18 +30,21 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage }); 
 // =======================================================
 
-// Rota 1: Cadastrar Produto (POST)
-router.post('/products', protect, upload.single('productImage'), createProduct); 
+// Rota POST: Cadastro de Produto
+// Já estava correta com o cast RequestHandler[]
+router.post('/products', [
+    protect, 
+    upload.array('product-images', 5), 
+    createProduct
+] as RequestHandler[]); 
 
-// Rota 2: Listar Todos os Produtos (GET)
+// Rota GET: Listar Todos os Produtos (PÚBLICA - Inalterada)
 router.get('/products', listProducts); 
 
-// 🌟 NOVO: Rota 3: Buscar Detalhes de UM produto por ID (GET)
-// Usamos 'protect' para garantir que apenas usuários logados possam ver os detalhes.
-router.get('/products/:id', protect, getProductDetails); 
+// Rota GET: Detalhes do Produto (CORRIGIDA - LINHA 44)
+router.get('/products/:id', [protect, getProductDetails] as RequestHandler[]);
 
-// 🌟 NOVO: Rota 4: Atualizar Produto por ID (PUT)
-// O nome do campo de arquivo ('product-images') deve corresponder ao que é enviado no frontend.
-router.put('/products/:id', protect, upload.single('product-images'), updateProduct); 
+// Rota PUT: Atualizar Produto (CORRIGIDA)
+router.put('/products/:id', [protect, updateProduct] as RequestHandler[]);
 
 export default router;
