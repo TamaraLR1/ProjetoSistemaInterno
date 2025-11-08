@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="../../css/listagem.css"> 
     
     <link rel="stylesheet" href="../../css/detalhes_produto.css"> 
-
 </head>
 <body>
     
@@ -46,7 +45,7 @@
         <main class="main-content">
             <section class="content">
                 <div class="details-card">
-                    <h2 id="product-name-title">Carregando...</h2>
+                    <h2 id="product-name-title">Carregando Detalhes...</h2>
                     <hr>
 
                     <h3>Imagens do Produto</h3>
@@ -66,7 +65,10 @@
 
                     <div style="margin-top: 20px; text-align: right;">
                         <a href="listagem_produtos.html" class="submit-btn secondary-btn">Voltar à Lista</a>
-                        <a id="edit-link" style="display: none;" class="submit-btn" href="edicao_produto.html?id=<%= productID %>">Editar</a>
+                        
+                        <a id="edit-link" style="display: none;" class="submit-btn" href="#">Editar Produto</a>
+
+                        <button id="delete-btn" style="display: none;" class="submit-btn delete-btn">Excluir Produto</button>
                     </div>
                 </div>
             </section>

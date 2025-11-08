@@ -7,7 +7,8 @@ import {
     createProduct, 
     listProducts, 
     getProductDetails, 
-    updateProduct 
+    updateProduct,
+    deleteProduct 
 } from '../controllers/product.controller'; 
 import path from 'path'; 
 
@@ -46,5 +47,8 @@ router.get('/products/:id', [protect, getProductDetails] as RequestHandler[]);
 
 // Rota PUT: Atualizar Produto (CORRIGIDA)
 router.put('/products/:id', [protect, updateProduct] as RequestHandler[]);
+
+// Rota DELETE: Exclusão de Produto
+router.delete('/products/:id', [protect, deleteProduct] as RequestHandler[]);
 
 export default router;

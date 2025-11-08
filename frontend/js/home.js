@@ -31,12 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (response.status === 401 || response.status === 403) {
                 // Token inválido/ausente, redireciona para login
                 console.warn('Sessão expirada ou não autenticada. Redirecionando...');
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
             }
         } catch (error) {
             console.error('Erro na requisição de informações do usuário:', error);
             // Em caso de erro de conexão, assume-se não autenticado
-            window.location.href = 'login.html';
+            window.location.href = '/login.html';
         }
     };
 
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 // Redirecionar
-                window.location.href = '../login.html';
+                window.location.href = '/login.html';
             } catch (error) {
                 console.error('Erro ao fazer logout:', error);
                 alert('Erro ao fazer logout. Tente novamente.');
