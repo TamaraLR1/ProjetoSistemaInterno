@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Produto</title>
+    
+    <link rel="stylesheet" href="../../css/home.css">
+    <link rel="stylesheet" href="../../css/listagem.css"> 
+    
+    <link rel="stylesheet" href="../../css/detalhes_produto.css"> 
+
+</head>
+<body>
+    
+    <header>
+        <h1>Detalhes do Produto</h1>
+        
+        <div class="user-menu-container">
+            <img src="../../assets/usuario.png" alt="Avatar do Usuário" class="user-avatar">
+            <div class="logout-menu">
+                <p id="user-full-name"></p>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-container">
+        
+        <aside class="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="../home.html">Perfil</a></li> 
+                    <li class="has-submenu">
+                        <a href="listagem_produtos.html" class="active">Produtos</a> 
+                        <ul class="submenu">
+                            <li><a href="cadastro_produtos.html">Cadastro de produtos</a></li> 
+                            <li><a href="listagem_produtos.html">Todos os produtos</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#">Ajuda</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section class="content">
+                <div class="details-card">
+                    <h2 id="product-name-title">Carregando...</h2>
+                    <hr>
+
+                    <h3>Imagens do Produto</h3>
+                    <div id="product-images-container">
+                        <p id="loading-images">Carregando imagens...</p>
+                    </div>
+                    <hr>
+
+                    <h3>Informações</h3>
+                    <div id="product-info">
+                        <p><strong>Preço:</strong> <span id="product-price">...</span></p>
+                        <p><strong>Vendedor:</strong> <span id="product-seller">...</span></p>
+                        
+                        <p><strong>Descrição:</strong></p>
+                        <span id="product-description">...</span>
+                    </div>
+
+                    <div style="margin-top: 20px; text-align: right;">
+                        <a href="listagem_produtos.html" class="submit-btn secondary-btn">Voltar à Lista</a>
+                        <a id="edit-link" style="display: none;" class="submit-btn" href="edicao_produto.html?id=<%= productID %>">Editar</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../js/home.js"></script> 
+    <script src="../../js/produtos/detalhes_produto.js"></script>
+</body>
+</html>

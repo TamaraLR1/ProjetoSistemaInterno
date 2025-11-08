@@ -1,0 +1,67 @@
+/* Caminho: frontend/css/detalhes_produto.css */
+
+/* Estilos para o Card de Detalhes (reutiliza o conceito de form-card) */
+.details-card {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+/* Container para as Múltiplas Imagens */
+#product-images-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    padding: 10px 0; /* Adiciona um respiro */
+}
+
+/* Estilo para cada Imagem de Detalhe */
+.detail-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    transition: transform 0.3s ease; /* Efeito visual sutil */
+}
+
+.detail-image:hover {
+    transform: scale(1.02);
+}
+
+/* Estilo para as Informações de Texto */
+#product-info p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+#product-info strong {
+    /* Garante alinhamento e largura fixa para os rótulos */
+    display: inline-block;
+    width: 120px;
+    color: #001640; /* Cor escura para destaque */
+    font-weight: 700;
+}
+
+#product-info #product-description {
+    /* Estilo específico para a descrição que pode ser longa */
+    display: block;
+    margin-top: 5px;
+    font-size: 1em;
+    font-weight: normal;
+    color: #444;
+    padding-left: 120px; /* Alinha o texto da descrição com o rótulo */
+}
+
+/* Ajuste o rótulo da descrição para ficar no topo */
+#product-info p:has(#product-description) strong {
+    display: block;
+    margin-bottom: 5px;
+    width: auto;
+    padding-left: 0;
+}
