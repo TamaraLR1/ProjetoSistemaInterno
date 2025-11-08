@@ -1,0 +1,53 @@
+/* Caminho: frontend/css/edicao_produto.css */
+
+/* Estiliza o container da imagem atual */
+.current-image-container {
+    width: 200px; /* Largura fixa */
+    height: 200px; /* Altura fixa */
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilo da imagem de preview */
+.product-image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Garante que a imagem preencha o container sem distorcer */
+}
+
+/* Estilo para a mensagem de status (opcional, se não estiver em home.css/cadastro.css) */
+.message-box {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.message-box.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.message-box.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* Estilo para o grupo de botões */
+.button-group {
+    margin-top: 30px;
+    text-align: right;
+}
+
+.new-image-label {
+    margin-top: 15px !important;
+}

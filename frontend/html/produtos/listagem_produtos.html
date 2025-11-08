@@ -4,21 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todos os Produtos</title>
+    
+    <link rel="stylesheet" href="../../css/home.css"> 
     <link rel="stylesheet" href="../../css/listagem.css"> 
 </head>
 <body>
+    
     <header>
         <h1>Catálogo de Produtos</h1>
-        <a href="../home.html">Voltar para a Home</a>
+        
+        <div class="user-menu-container">
+            <img src="../../assets/usuario.png" alt="Avatar do Usuário" class="user-avatar">
+            <div class="logout-menu">
+                <p id="user-full-name"></p>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
     </header>
 
-    <main>
-        <div id="products-list-container" class="products-grid">
-            <p id="loading-message">Carregando produtos...</p>
-        </div>
-        <p id="error-message" style="color: red; display: none;">Ocorreu um erro ao carregar os produtos.</p>
-    </main>
+    <div class="page-container">
+        
+        <aside class="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="../home.html">Perfil</a></li> 
+                    
+                    <li class="has-submenu">
+                        <a href="listagem_produtos.html" class="active">Produtos</a> 
+                        
+                        <ul class="submenu">
+                            <li><a href="cadastro_produtos.html">Cadastro de produtos</a></li> 
+                            
+                            <li><a href="listagem_produtos.html" class="active">Todos os produtos</a></li>
+                        </ul>
+                    </li>
+                    
+                    <li><a href="#">Ajuda</a></li>
+                </ul>
+            </nav>
+        </aside>
 
+        <main class="main-content">
+            <section class="content">
+                <div id="products-list-container" class="products-grid">
+                    <p id="loading-message">Carregando produtos...</p>
+                </div>
+                <p id="error-message" style="color: red; display: none;">Ocorreu um erro ao carregar os produtos.</p>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../js/home.js"></script> 
     <script src="../../js/produtos/listagem_produtos.js"></script>
 </body>
 </html>

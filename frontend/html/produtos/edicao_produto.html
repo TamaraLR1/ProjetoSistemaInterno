@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Produto</title>
+    <link rel="stylesheet" href="../../css/home.css"> 
+    <link rel="stylesheet" href="../../css/cadastro_produtos.css"> 
+    <link rel="stylesheet" href="../../css/edicao_produto.css"> 
+</head>
+<body>
+    <header>
+        <h1 id="edit-page-title">Carregando Edição...</h1>
+        <a href="listagem_produtos.html" class="back-link">Voltar para a Listagem</a>
+    </header>
+
+    <div class="page-container">
+        <aside class="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="../home.html">Home</a></li>
+                    
+                    <li class="has-submenu">
+                        <a href="#" class="active">Produtos</a> 
+                        <ul class="submenu">
+                            <li><a href="cadastro_produtos.html">Cadastro de produtos</a></li> 
+                            <li><a href="listagem_produtos.html" class="active">Todos os produtos</a></li> 
+                        </ul>
+                    </li>
+                    
+                    <li><a href="#">Ajuda</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <section class="content">
+                <div class="form-card">
+                    <div id="status-message" class="message-box"></div>
+                    
+                    <form id="product-edit-form" style="display:none;">
+                        
+                        <div class="input-group">
+                            <label for="product-name">Nome</label>
+                            <input type="text" id="product-name" name="product-name" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="product-description">Descrição</label>
+                            <textarea id="product-description" name="product-description" rows="4" required></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="product-price">Preço (R$)</label>
+                            <input type="number" id="product-price" name="product-price" step="0.01" min="0" required>
+                        </div>
+                        
+                        <div class="input-group image-upload-group">
+                            <label>Imagem Atual</label>
+                            <div class="current-image-container">
+                                <img id="current-image" src="" alt="Imagem Atual" class="product-image-preview">
+                            </div>
+                            
+                            <label for="product-images" class="new-image-label">Nova Imagem (Opcional)</label>
+                            <input type="file" id="product-images" name="product-images" accept="image/*">
+                            <small>Selecione um arquivo para substituir a imagem atual.</small>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="submit-btn">Salvar Alterações</button>
+                            <button type="button" class="cancel-btn" onclick="window.location.href='listagem_produtos.html'">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../js/produtos/edicao_produto.js"></script>
+</body>
+</html>
