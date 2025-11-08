@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // O controller listProducts garante que `product.image_url` contenha a primeira URL de imagem.
                 const imageUrl = product.image_url && product.image_url.trim() !== ''
-                    ? `http://localhost:5000/${product.image_url}` 
+                    ? `http://localhost:5000/uploads/${product.image_url}` 
                     : placeholderPath; 
 
                 // Log para depuração

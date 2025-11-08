@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Produto</title>
+    <title>Edição de Produto</title>
     
-    <link rel="stylesheet" href="../../css/home.css">
-    
+    <link rel="stylesheet" href="../../css/home.css"> 
     <link rel="stylesheet" href="../../css/cadastro_produtos.css"> 
     <link rel="stylesheet" href="../../css/edicao_produto.css"> 
-
 </head>
 <body>
     
     <header>
-        <h1>Editar Produto</h1>
+        <h1 id="edit-page-title">Edição de Produto</h1>
         
         <div class="user-menu-container">
             <img src="../../assets/usuario.png" alt="Avatar do Usuário" class="user-avatar">
@@ -39,8 +37,6 @@
                             <li><a href="cadastro_produtos.html">Cadastro de produtos</a></li> 
                             
                             <li><a href="listagem_produtos.html">Todos os produtos</a></li>
-                            
-                            <li><a href="#" class="active">Editar Produto</a></li> 
                         </ul>
                     </li>
                     
@@ -51,43 +47,44 @@
 
         <main class="main-content">
             <section class="content">
-                <div class="form-card" style="display: none;"> 
-                    <h2 id="edit-page-title">Carregando Produto...</h2>
-                    
-                    <div id="status-message" class="message-box" style="display: block;"></div>
+                <div class="form-card">
+                    <h2>Detalhes do Produto</h2>
 
-                    <form id="product-edit-form">
-                        
+                    <div id="status-message" class="message-box" style="display: none;"></div>
+
+                    <form id="product-edit-form" enctype="multipart/form-data">
+
                         <div class="input-group">
-                            <label>Imagens Atuais:</label>
-                            <div id="current-images-container" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                </div>
-                            <p style="font-size: 0.85em; color: #666; margin-top: 5px;">*Para remover uma imagem, você precisará de uma funcionalidade específica de exclusão.</p>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="product-images">Adicionar Novas Imagens (Máx: 5)</label>
-                            <input type="file" id="product-images" name="product-images" accept="image/*" multiple>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="product-name">Nome do Produto:</label>
+                            <label for="product-name">Nome do Produto</label>
                             <input type="text" id="product-name" name="name" required>
                         </div>
 
                         <div class="input-group">
-                            <label for="product-description">Descrição:</label>
+                            <label for="product-description">Descrição</label>
                             <textarea id="product-description" name="description" rows="4"></textarea>
                         </div>
 
                         <div class="input-group">
-                            <label for="product-price">Preço (R$):</label>
-                            <input type="text" id="product-price" name="price" required placeholder="Ex: 99,90">
+                            <label for="product-price">Preço (R$)</label>
+                            <input type="text" id="product-price" name="price" required placeholder="Ex: 10,99">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Imagens Atuais:</label>
+                            <div id="current-images-container" class="images-preview-grid">
+                                <p>Carregando imagens...</p>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="product-images">Novas Imagens (Substituem as Atuais)</label>
+                            <input type="file" id="product-images" name="product-images" multiple accept="image/*">
+                            <small>Se você selecionar novas imagens, todas as imagens antigas serão **deletadas e substituídas** pelas novas.</small>
                         </div>
                         
-                        <div style="margin-top: 25px;">
+                        <div class="form-actions">
                             <button type="submit" class="submit-btn">Salvar Alterações</button>
-                            <a href="listagem_produtos.html" class="submit-btn secondary-btn">Voltar à Lista</a>
+                            <button type="button" onclick="history.back()" class="cancel-btn">Cancelar</button>
                         </div>
                     </form>
                 </div>

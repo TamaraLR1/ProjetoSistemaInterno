@@ -1,53 +1,78 @@
 /* Caminho: frontend/css/edicao_produto.css */
 
-/* Estiliza o container da imagem atual */
-.current-image-container {
-    width: 200px; /* Largura fixa */
-    height: 200px; /* Altura fixa */
-    margin-bottom: 15px;
+/* Container geral das imagens atuais */
+.images-preview-grid {
+    display: flex; /* Para que as imagens fiquem lado a lado */
+    flex-wrap: wrap; /* Permite quebrar linha se houver muitas imagens */
+    gap: 15px; /* Espaçamento entre as imagens */
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    min-height: 80px; /* Garante que o container tenha uma altura mínima */
+    align-items: center; /* Centraliza verticalmente se houver apenas uma linha */
+    justify-content: flex-start; /* Alinha à esquerda */
+}
+
+/* Estilo para cada item individual da imagem no grid */
+.current-image-item {
+    position: relative;
+    width: 120px; /* Largura fixa para a miniatura */
+    height: 120px; /* Altura fixa para a miniatura */
     border: 1px solid #ddd;
     border-radius: 4px;
-    overflow: hidden;
-    background-color: #f9f9f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    overflow: hidden; /* Garante que a imagem não saia do container */
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease-in-out;
 }
 
-/* Estilo da imagem de preview */
+.current-image-item:hover {
+    transform: scale(1.03); /* Leve zoom ao passar o mouse */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* Estilo para a imagem em si dentro do item */
 .product-image-preview {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Garante que a imagem preencha o container sem distorcer */
+    width: 100%; /* Ocupa 100% da largura do seu container (.current-image-item) */
+    height: 100%; /* Ocupa 100% da altura do seu container */
+    object-fit: cover; /* Recorta a imagem para preencher o espaço, sem distorcer */
+    display: block; /* Remove espaços extras abaixo da imagem */
 }
 
-/* Estilo para a mensagem de status (opcional, se não estiver em home.css/cadastro.css) */
-.message-box {
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
+/* Estilo para o placeholder de "Nenhuma imagem atual." */
+.images-preview-grid p {
+    color: #888;
+    font-style: italic;
     text-align: center;
-    font-weight: bold;
+    width: 100%; /* Ocupa a largura total para centralizar o texto */
+    font-size: 0.9em;
 }
 
-.message-box.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+/* Estilos adicionais para o input de arquivo */
+input[type="file"] {
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f0f0f0;
 }
 
-.message-box.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+input[type="file"]:hover {
+    background-color: #e5e5e5;
 }
 
-/* Estilo para o grupo de botões */
-.button-group {
-    margin-top: 30px;
-    text-align: right;
+input[type="file"]::file-selector-button {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.2s ease;
 }
 
-.new-image-label {
-    margin-top: 15px !important;
+input[type="file"]::file-selector-button:hover {
+    background-color: #0056b3;
 }

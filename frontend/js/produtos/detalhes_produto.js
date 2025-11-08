@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (product.image_urls && product.image_urls.length > 0) {
                 product.image_urls.forEach(imageUrl => {
-                    const imgUrl = `http://localhost:5000/${imageUrl}`;
+                    const imgUrl = `http://localhost:5000/uploads/${imageUrl}`;
                     const imgElement = document.createElement('img');
                     imgElement.src = imgUrl;
                     imgElement.alt = product.name;

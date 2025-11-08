@@ -10,12 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const descriptionInput = document.getElementById('product-description');
     const priceInput = document.getElementById('product-price');
     const imagesInput = document.getElementById('product-images'); 
-    // Elemento para exibir MÚLTIPLAS imagens
+    
+    // NOVO: Elemento para exibir as imagens atuais
+    // Você deve adicionar <div id="current-images-container"> no seu HTML
     const currentImagesContainer = document.getElementById('current-images-container'); 
+    
     const statusMessage = document.getElementById('status-message');
     const titleElement = document.getElementById('edit-page-title');
     
-    // Caminho para a imagem placeholder no frontend
     const placeholderPath = '../../assets/placeholder.png'; 
 
     let productID = null; 
@@ -28,15 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     productID = parseInt(productId);
     titleElement.textContent = `Editando Produto (ID: ${productID})`;
-    form.parentElement.style.display = 'block'; // Mostra o card do formulário
-
+    form.parentElement.style.display = 'block'; 
+    
     // ===============================================
-    // 3. FUNÇÃO PARA CARREGAR DETALHES DO PRODUTO
+    // 3. FUNÇÃO PARA CARREGAR DETALHES
     // ===============================================
     const fetchProductDetails = async () => {
-        statusMessage.textContent = 'Carregando detalhes...';
-        statusMessage.className = 'message-box';
-
         try {
             const response = await fetch(`http://localhost:5000/api/products/${productID}`, {
                 method: 'GET',
@@ -44,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.status === 401 || response.status === 403) {
-                // Sessão expirada ou não autorizado
                 alert('Sessão expirada ou acesso negado. Redirecionando para o login.');
                 window.location.href = '../../login.html';
                 return;
@@ -56,101 +54,88 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const product = await response.json();
 
-            // 🌟 PREENCHER O FORMULÁRIO
+            // Preenche os campos de texto
             nameInput.value = product.name;
             descriptionInput.value = product.description || '';
-            // Formata o preço para o padrão brasileiro (vírgula)
+            // Converte para o formato local (vírgula)
             priceInput.value = parseFloat(product.price).toFixed(2).replace('.', ','); 
 
-            // 🌟 TRATAMENTO DE IMAGENS ATUAIS
+            // NOVO: Exibir imagens atuais
             currentImagesContainer.innerHTML = ''; // Limpa o container
-
+            
             if (product.image_urls && product.image_urls.length > 0) {
                 product.image_urls.forEach(imageUrl => {
-                    const imgUrl = `http://localhost:5000/${imageUrl}`;
+                    const imgUrl = `http://localhost:5000/uploads/${imageUrl}`;
+                    
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'current-image-item'; 
+                    imgContainer.title = "A nova imagem substituirá esta.";
+                    
                     const imgElement = document.createElement('img');
                     imgElement.src = imgUrl;
                     imgElement.alt = product.name;
-                    imgElement.className = 'product-image-preview';
-
-                    const imageWrapper = document.createElement('div');
-                    imageWrapper.className = 'current-image-container'; // Usa o CSS de container
-                    imageWrapper.appendChild(imgElement);
+                    imgElement.className = 'product-image-preview'; 
                     
-                    // Nota: A lógica de exclusão de imagens é complexa e requer uma nova rota no backend (não incluída aqui), 
-                    // mas é aqui que você adicionaria um botão de exclusão.
-
-                    currentImagesContainer.appendChild(imageWrapper);
+                    imgContainer.appendChild(imgElement);
+                    currentImagesContainer.appendChild(imgContainer);
                 });
             } else {
-                // Caso não haja imagens, exibe o placeholder
-                currentImagesContainer.innerHTML = `
-                    <div class="current-image-container">
-                        <img src="${placeholderPath}" alt="Sem imagem" class="product-image-preview">
+                 currentImagesContainer.innerHTML = `
+                    <div class="current-image-item">
+                        <img src="${placeholderPath}" alt="Sem imagem atual" class="product-image-preview">
+                        <p style="font-size: 0.8em; margin-top: 5px;">Nenhuma imagem atual.</p>
                     </div>
-                `;
-            }
-
-            // 🌟 VERIFICAR PERMISSÃO DE EDIÇÃO
-            if (!product.isOwner) {
-                // Se não for o dono, desabilita o formulário
-                form.querySelectorAll('input, textarea, button').forEach(el => el.disabled = true);
-                statusMessage.textContent = 'Você só pode visualizar este produto. A edição está desabilitada.';
-                statusMessage.className = 'message-box error';
-            } else {
-                statusMessage.textContent = '';
-                statusMessage.className = '';
+                 `;
             }
 
         } catch (error) {
-            console.error('Erro ao buscar detalhes do produto:', error);
-            statusMessage.textContent = 'Erro ao carregar detalhes do produto.';
+            console.error('Erro ao carregar detalhes do produto:', error);
+            statusMessage.textContent = 'Erro ao carregar os dados do produto para edição.';
             statusMessage.className = 'message-box error';
         }
     };
-
-
+    
     // ===============================================
-    // 4. FUNÇÃO PARA LIDAR COM A SUBMISSÃO DE EDIÇÃO (APENAS DADOS DE TEXTO)
+    // 4. FUNÇÃO PARA SUBMISSÃO (handleEditSubmit)
     // ===============================================
     const handleEditSubmit = async (event) => {
         event.preventDefault();
         
-        // Validação básica (mesmo que os inputs sejam required)
-        if (!nameInput.value || !priceInput.value) {
-            alert('Nome e Preço são obrigatórios!');
-            return;
-        }
-
         statusMessage.textContent = 'Salvando alterações...';
-        statusMessage.className = 'message-box';
-
+        statusMessage.className = 'message-box info';
+        
         // Coleta dos dados
         const name = nameInput.value;
-        const description = descriptionInput ? descriptionInput.value : '';
+        const description = descriptionInput.value || '';
         const price = parseFloat(priceInput.value.replace(',', '.'));
+        const files = imagesInput.files; 
         
-        // 🌟 Usamos FormData APENAS para enviar dados de texto na rota PUT/PATCH
-        // O Multer tem um middleware chamado `upload.none()` que leria FormData sem arquivos
-        // Mas a forma mais simples e robusta para dados de texto é JSON puro, 
-        // já que a rota PUT do backend ainda não foi ajustada para Multer.none().
-        // *************************************************************************
-        // ** Manteremos o envio como JSON puro para a rota PUT/products/:id atual **
-        // *************************************************************************
-        const updateData = {
-            name: name,
-            description: description,
-            price: price.toFixed(2)
-        };
+        if (!name || isNaN(price)) {
+             statusMessage.textContent = 'Nome e Preço são obrigatórios e válidos.';
+             statusMessage.className = 'message-box error';
+             return;
+        }
 
+        // Montagem do FormData (CRUCIAL para enviar arquivos)
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('description', description);
+        formData.append('price', price.toFixed(2)); 
 
+        // Adiciona as novas imagens (se existirem). 
+        // O nome 'product-images' DEVE casar com o Multer na rota do backend.
+        if (files && files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                formData.append('product-images', files[i]); 
+            }
+        }
+        
         try {
+            // Requisição PUT para a rota que lida com imagens (product.routes.ts)
             const response = await fetch(`http://localhost:5000/api/products/${productID}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json', // Importante para enviar JSON
-                },
-                body: JSON.stringify(updateData),
+                // NÂO defina Content-Type; o navegador faz isso para FormData
+                body: formData, 
                 credentials: 'include',
             });
 

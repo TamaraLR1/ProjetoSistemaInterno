@@ -7,7 +7,7 @@ import {
     createProduct, 
     listProducts, 
     getProductDetails, 
-    updateProduct,
+    updateProductWithImages,
     deleteProduct 
 } from '../controllers/product.controller'; 
 import path from 'path'; 
@@ -45,8 +45,12 @@ router.get('/products', listProducts);
 // Rota GET: Detalhes do Produto (CORRIGIDA - LINHA 44)
 router.get('/products/:id', [protect, getProductDetails] as RequestHandler[]);
 
-// Rota PUT: Atualizar Produto (CORRIGIDA)
-router.put('/products/:id', [protect, updateProduct] as RequestHandler[]);
+// Rota PUT/PATCH: Atualizar Produto (Agora Lida com Imagens)
+router.put('/products/:id', [
+    protect, 
+    upload.array('product-images', 5), // 'product-images' é o nome do campo de arquivo no frontend
+    updateProductWithImages           // Usar a nova função que aceita arquivos
+] as RequestHandler[]);
 
 // Rota DELETE: Exclusão de Produto
 router.delete('/products/:id', [protect, deleteProduct] as RequestHandler[]);
