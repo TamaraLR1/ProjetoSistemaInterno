@@ -126,21 +126,25 @@ main {
     padding-bottom: 10px;
 }
 
-.product-card button {
+.product-card a {
+    display: block; /* Faz o link se comportar como um bloco */
     margin: 15px;
-    padding: 10px;
-    background-color: #007bff;
+    padding: 12px; /* Aumentei o padding para um botão mais confortável */
+    background-color: #007bff; /* Cor azul primária */
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px; /* Cantos arredondados */
     cursor: pointer;
     font-weight: bold;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease, transform 0.2s ease;
     margin-top: auto; /* Empurra o botão para a parte inferior do card */
+    text-decoration: none; /* Remove o sublinhado do link */
+    text-align: center; /* Centraliza o texto */
 }
 
-.product-card button:hover {
+.product-card a:hover {
     background-color: #0056b3;
+    transform: translateY(-2px); /* Efeito de "levantar" */
 }
 
 /* Estilos para mensagens de status (carregamento/erro) */

@@ -166,8 +166,6 @@ export const getProductDetails = async (req: AuthRequest, res: Response) => {
         );
 
         const imageUrls = imageRows.map((row: any) => row.image_url);
-
-        const isOwner = productDetails.user_id === userId; 
         
         return res.status(200).json({
             id: productDetails.id,
@@ -177,7 +175,6 @@ export const getProductDetails = async (req: AuthRequest, res: Response) => {
             firstName: productDetails.firstName,
             lastName: productDetails.lastName,
             image_urls: imageUrls,
-            isOwner: isOwner 
         });
 
     } catch (error) {
@@ -227,11 +224,6 @@ export const updateProductWithImages = async (req: AuthRequest, res: Response) =
             return res.status(404).json({ message: 'Produto não encontrado.' });
         }
 
-        if (existingProduct.user_id !== userId) {
-            await connection.rollback();
-            cleanupFiles(newFiles);
-            return res.status(403).json({ message: 'Acesso negado. Você só pode editar seus próprios produtos.' });
-        }
 
         // 2. Atualizar os dados de texto do Produto
         await connection.execute(
@@ -323,11 +315,6 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
             return res.status(404).json({ message: 'Produto não encontrado.' });
         }
 
-        if (product.user_id !== userId) {
-            await connection.rollback();
-            return res.status(403).json({ message: 'Acesso negado. Você só pode deletar seus próprios produtos.' });
-        }
-        
         const [imageRows]: any = await connection.execute(
             'SELECT image_url FROM product_images WHERE product_id = ?', 
             [productID]

@@ -48,6 +48,10 @@
     font-weight: 700;
 }
 
+#product-info {
+    text-align: left; /* <-- ADICIONE ESTA LINHA */
+}
+
 #product-info #product-description {
     /* Estilo específico para a descrição que pode ser longa */
     display: block;
@@ -65,3 +69,65 @@
     width: auto;
     padding-left: 0;
 }
+
+/* Caminho: frontend/css/detalhes_produto.css */
+
+/* ... (Estilos existentes) ... */
+
+/* Adiciona estilo para o container de botões */
+.form-actions {
+    margin-top: 20px;
+    text-align: right;
+    display: flex; /* Para alinhar os botões */
+    justify-content: flex-end; /* Alinha à direita */
+    gap: 10px; /* Espaço entre os botões */
+}
+
+/* Estilo Base para os Botões (aplicado a .submit-btn e .secondary-btn) */
+.submit-btn, .secondary-btn {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 8px; /* Mais arredondado para um visual moderno */
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    text-decoration: none; /* Para links (o "Voltar") */
+    transition: background-color 0.3s ease;
+    display: inline-block; /* Garante que o 'a' se comporte como botão */
+    text-align: center;
+}
+
+/* 1. Estilo para o botão "Editar Produto" (Azul Padrão) */
+.submit-btn {
+    background-color: #007bff; /* Azul primário */
+}
+
+.submit-btn:hover {
+    background-color: #0056b3;
+}
+
+/* 2. Estilo para o botão "Voltar à Lista" (Azul Secundário) */
+.secondary-btn {
+    background-color: #6c757d; /* Cinza/Azul suave */
+}
+
+.secondary-btn:hover {
+    background-color: #5a6268;
+}
+
+/* 3. Estilo para o botão "Excluir Produto" (Vermelho) */
+.delete-btn {
+    background-color: #dc3545; /* Vermelho para ação perigosa */
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Garante que o delete-btn herde a base de submit-btn (como definido no seu HTML) */
+.submit-btn.delete-btn {
+    /* Herda o padding, border-radius, etc. de .submit-btn, apenas muda a cor */
+}
+
+/* ... (Restante dos estilos existentes) ... */

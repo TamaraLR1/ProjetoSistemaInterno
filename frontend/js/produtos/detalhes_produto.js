@@ -72,16 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 3. Mostrar links de Ação se o usuário for o dono (baseado na flag isOwner do backend)
-            if (product.isOwner) {
-                editLink.style.display = 'inline-block';
-                editLink.href = `edicao_produto.html?id=${productID}`;
+           
+            editLink.style.display = 'inline-block';
+            editLink.href = `edicao_produto.html?id=${productID}`;
                 
-                deleteBtn.style.display = 'inline-block'; 
-            } else {
-                 // Garante que os botões fiquem escondidos se o isOwner for false
-                 editLink.style.display = 'none';
-                 deleteBtn.style.display = 'none'; 
-            }
+            deleteBtn.style.display = 'inline-block'; 
+          
 
         } catch (error) {
             console.error('Erro ao buscar detalhes do produto:', error);
