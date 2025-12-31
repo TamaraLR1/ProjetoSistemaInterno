@@ -91,38 +91,38 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
 // =======================================================
 // 2. Listar Produtos (ListProducts) - (INALTERADA)
 // =======================================================
+// Local: src/controllers/product.controller.ts
+
 export const listProducts = async (req: Request, res: Response) => {
     try {
-        // ... (lógica inalterada) ...
-        const [rows]: any = await pool.execute(
-            `SELECT 
+        // Mudamos o SQL para agrupar as imagens
+        const [rows]: any = await pool.execute(`
+            SELECT 
                 p.id, 
                 p.name, 
                 p.description, 
-                p.price,
-                u.firstName,                             
-                pi.image_url                             
-             FROM products p
-             JOIN users u ON p.user_id = u.id           
-             LEFT JOIN product_images pi ON p.id = pi.product_id
-             GROUP BY p.id, p.name, p.description, p.price, u.firstName, pi.image_url
-             ORDER BY p.id DESC`
-        );
+                p.price, 
+                p.user_id,
+                GROUP_CONCAT(pi.image_url) as all_images -- Junta as imagens em uma string
+            FROM products p
+            LEFT JOIN product_images pi ON p.id = pi.product_id
+            GROUP BY p.id -- Garante apenas UMA linha por produto
+        `);
 
-        const products = rows.map((row: any) => ({
-            id: row.id,
-            name: row.name,
-            description: row.description,
-            price: row.price,
-            sellerName: row.firstName, 
-            image_url: row.image_url
-        }));
+        // Formata o resultado para que o frontend receba a primeira imagem ou um array
+        const products = rows.map((product: any) => {
+            const images = product.all_images ? product.all_images.split(',') : [];
+            return {
+                ...product,
+                image_url: images[0] || '', // Usamos a primeira imagem para a listagem
+                all_images: images          // Enviamos todas as imagens se precisar
+            };
+        });
 
-        return res.status(200).json(products);
-
+        res.json(products);
     } catch (error) {
-        errorLog('Erro ao listar produtos', error);
-        return res.status(500).json({ message: 'Erro no servidor ao listar produtos.' });
+        console.error('Erro ao listar produtos:', error);
+        res.status(500).json({ message: 'Erro ao buscar produtos.' });
     }
 };
 
