@@ -38,50 +38,65 @@ export const registerUser = async (req: Request, res: Response) => {
 
 // NOVO: Função para buscar as informações do usuário logado
 export const getUserInfo = async (req: AuthRequest, res: Response) => {
-    const userId = req.userId; 
-
-    if (!userId) {
-        return res.status(401).json({ message: 'Usuário não autenticado.' });
-    }
+    // O userId vem do token JWT processado pelo middleware 'protect'
+    const userId = req.userId;
 
     try {
-        // Buscar informações no banco de dados, retornando apenas campos seguros
+        // 1. Fazemos a busca garantindo que o email e avatar_url estejam no SELECT
         const [rows]: any = await pool.execute(
-            'SELECT id, firstName, lastName, email FROM users WHERE id = ?', 
+            'SELECT id, firstName, lastName, email, avatar_url FROM users WHERE id = ?',
             [userId]
         );
-        
-        const user = rows[0];
 
-        if (!user) {
+        // 2. Verifica se o usuário existe
+        if (rows.length === 0) {
             return res.status(404).json({ message: 'Usuário não encontrado.' });
         }
 
-        res.json({ user });
-        
+        const user = rows[0];
+
+        // 3. Retorna os dados para o frontend
+        // O objeto 'user' conterá: user.firstName, user.lastName, user.email e user.avatar_url
+        res.json({ 
+            success: true,
+            user: {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                avatar_url: user.avatar_url
+            }
+        });
+
     } catch (error) {
         console.error('Erro ao buscar informações do usuário:', error);
-        res.status(500).json({ message: 'Erro no servidor.' });
+        res.status(500).json({ message: 'Erro interno ao buscar dados do perfil.' });
     }
 };
 
 export const updateUserInfo = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
-    const { firstName, lastName, email } = req.body;
+    const { firstName, lastName } = req.body;
+    const avatarFile = req.file; // Pegamos o arquivo processado pelo Multer
 
-    // VALIDAÇÃO NO SERVIDOR
-    // Verifica se os campos existem e se não estão preenchidos apenas com espaços
     if (!firstName || firstName.trim() === '' || !lastName || lastName.trim() === '') {
-        return res.status(400).json({ 
-            message: 'Nome e Sobrenome são obrigatórios e não podem estar vazios.' 
-        });
+        return res.status(400).json({ message: 'Nome e Sobrenome são obrigatórios.' });
     }
 
     try {
-        const [result]: any = await pool.execute(
-            'UPDATE users SET firstName = ?, lastName = ?, email = ? WHERE id = ?',
-            [firstName.trim(), lastName.trim(), email, userId]
-        );
+        let sql = 'UPDATE users SET firstName = ?, lastName = ?';
+        const params: any[] = [firstName.trim(), lastName.trim()];
+
+        // Se o usuário enviou uma foto nova, atualizamos a coluna avatar_url
+        if (avatarFile) {
+            sql += ', avatar_url = ?';
+            params.push(avatarFile.filename);
+        }
+
+        sql += ' WHERE id = ?';
+        params.push(userId);
+
+        const [result]: any = await pool.execute(sql, params);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Usuário não encontrado.' });
@@ -89,7 +104,7 @@ export const updateUserInfo = async (req: AuthRequest, res: Response) => {
 
         res.json({ message: 'Perfil atualizado com sucesso!' });
     } catch (error) {
-        console.error('Erro ao atualizar usuário:', error);
-        res.status(500).json({ message: 'Erro interno ao atualizar perfil.' });
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao atualizar perfil.' });
     }
 };

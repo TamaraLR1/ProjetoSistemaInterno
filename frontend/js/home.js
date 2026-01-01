@@ -22,10 +22,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 const user = data.user;
                 
-                // Exibe o nome e sobrenome no local desejado
+                // 1. Exibe o nome e sobrenome no local desejado
                 if (fullNameElement) {
                     const fullName = `${user.firstName} ${user.lastName}`;
                     fullNameElement.textContent = fullName;
+                }
+
+                // 2. ATUALIZA A FOTO DO AVATAR NO HEADER
+                // Se o usuário tiver uma foto no banco, substitui a padrão (assets/usuario.png)
+                if (userAvatar && user.avatar_url) {
+                    // Adicionamos ?t=Date.now() para evitar que o navegador use a imagem antiga em cache
+                    userAvatar.src = `http://localhost:5000/uploads/${user.avatar_url}?t=${Date.now()}`;
+                } else {
+                    const currentUrl = window.location.href;
+                            
+                            if (currentUrl.includes('/html/perfil/') || currentUrl.includes('/html/produtos/')) {
+                                userAvatar.src = "../../assets/usuario.png";
+                            } else {
+                                userAvatar.src = "../assets/usuario.png";
+                            }
                 }
                 
             } else if (response.status === 401 || response.status === 403) {

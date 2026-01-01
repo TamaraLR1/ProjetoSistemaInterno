@@ -3,6 +3,7 @@
 import { Router } from 'express';
 import { registerUser, getUserInfo, updateUserInfo } from '../controllers/user.controller'; // [ALTERADO] Importar getUserInfo
 import { protect } from '../middlewares/auth.middleware'; // [NOVO] Importar o middleware de proteção
+import upload from '../middlewares/upload.middleware';
 
 const router = Router();
 
@@ -13,6 +14,6 @@ router.post('/register', registerUser);
 router.get('/user/info', protect, getUserInfo);
 
 // Rota para atualizar (PUT)
-router.put('/user/update', protect, updateUserInfo);
+router.put('/user/update', protect, upload.single('avatar'), updateUserInfo);
 
 export default router;
