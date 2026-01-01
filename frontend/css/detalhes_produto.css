@@ -124,10 +124,3 @@
 .delete-btn:hover {
     background-color: #c82333;
 }
-
-/* Garante que o delete-btn herde a base de submit-btn (como definido no seu HTML) */
-.submit-btn.delete-btn {
-    /* Herda o padding, border-radius, etc. de .submit-btn, apenas muda a cor */
-}
-
-/* ... (Restante dos estilos existentes) ... */

@@ -1,0 +1,31 @@
+/* Mensagens de erro abaixo dos inputs */
+.error-message {
+    color: #d9534f;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none; /* Escondido por padrão */
+    font-weight: 500;
+}
+
+/* Estilo para destacar o input quando houver erro */
+input.input-error {
+    border: 2px solid #d9534f !important;
+    background-color: #fff8f8;
+}
+
+/* Ajuste nos botões para ficarem lado a lado */
+.profile-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.submit-btn {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    transition: background 0.3s;
+}

@@ -64,3 +64,32 @@ export const getUserInfo = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: 'Erro no servidor.' });
     }
 };
+
+export const updateUserInfo = async (req: AuthRequest, res: Response) => {
+    const userId = req.userId;
+    const { firstName, lastName, email } = req.body;
+
+    // VALIDAÇÃO NO SERVIDOR
+    // Verifica se os campos existem e se não estão preenchidos apenas com espaços
+    if (!firstName || firstName.trim() === '' || !lastName || lastName.trim() === '') {
+        return res.status(400).json({ 
+            message: 'Nome e Sobrenome são obrigatórios e não podem estar vazios.' 
+        });
+    }
+
+    try {
+        const [result]: any = await pool.execute(
+            'UPDATE users SET firstName = ?, lastName = ?, email = ? WHERE id = ?',
+            [firstName.trim(), lastName.trim(), email, userId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Usuário não encontrado.' });
+        }
+
+        res.json({ message: 'Perfil atualizado com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao atualizar usuário:', error);
+        res.status(500).json({ message: 'Erro interno ao atualizar perfil.' });
+    }
+};

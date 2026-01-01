@@ -27,23 +27,26 @@
         <aside class="sidebar">
             <nav>
                 <ul>
-                    <li><a href="../home.html">Perfil</a></li> 
+                    <li><a href="../home.html">Início</a></li>
+
+                    <li class="has-submenu">
+                        <a href="#">Perfil</a>
+                        <ul class="submenu">
+                            <li><a href="../perfil/perfil.html">Editar usuário</a></li>
+                        </ul>
+                    </li>
                     
                     <li class="has-submenu">
                         <a href="listagem_produtos.html" class="active">Produtos</a> 
-                        
                         <ul class="submenu">
                             <li><a href="cadastro_produtos.html">Cadastro de produtos</a></li> 
-                            
                             <li><a href="listagem_produtos.html" class="active">Todos os produtos</a></li>
                         </ul>
                     </li>
                     
-                    <li><a href="#">Ajuda</a></li>
                 </ul>
             </nav>
         </aside>
-
         <main class="main-content">
             <section class="content">
                 <div id="products-list-container" class="products-grid">
