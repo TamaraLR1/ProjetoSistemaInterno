@@ -1,76 +1,104 @@
-// cadastro_produtos.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Seleção e Verificação de Elementos
+    // 1. Seleção de Elementos
     const form = document.getElementById('product-register-form');
     const nameInput = document.getElementById('product-name');
     const descriptionInput = document.getElementById('product-description');
     const priceInput = document.getElementById('product-price');
-    // Campo de arquivo (com atributo 'multiple' no HTML)
     const imagesInput = document.getElementById('product-images'); 
-
-    // ... (Verificações de segurança inalteradas) ...
 
     if (form) {
         form.addEventListener('submit', async (event) => {
             event.preventDefault(); 
             
-            // ... (Validação de input inalterada) ...
-
-            // 2. Coleta dos dados
-            const name = nameInput.value;
-            const description = descriptionInput ? descriptionInput.value : '';
-            // Converte o preço para o formato de ponto
-            const price = parseFloat(priceInput.value.replace(',', '.')); 
+            // 2. Coleta e Limpeza de Dados
+            const name = nameInput.value.trim();
+            const description = descriptionInput ? descriptionInput.value.trim() : '';
+            const priceRaw = priceInput.value.replace(',', '.');
             
-            // 3. Montagem do FormData
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('description', description);
-            formData.append('price', price.toFixed(2)); // Envia com 2 casas decimais
+            // Validação simples de preenchimento
+            if (!name || !priceRaw) {
+                alert("Por favor, preencha o nome e o preço do produto.");
+                return;
+            }
 
-            // 🌟 AJUSTE CRUCIAL AQUI: Itera sobre a lista de arquivos
+            const price = parseFloat(priceRaw);
+            if (isNaN(price)) {
+                alert("Por favor, insira um preço válido.");
+                return;
+            }
+
+            // 3. Validação de Arquivos (Tamanho e Tipo)
             const files = imagesInput.files;
 
             if (files.length === 0) {
-                 alert("É obrigatório selecionar pelo menos uma imagem.");
+                 alert("É obrigatório selecionar pelo menos uma imagem para o produto.");
                  return;
             }
 
-            // Anexa CADA arquivo individualmente com o mesmo nome de campo: 'product-images'
-            // O nome 'product-images' DEVE coincidir com o usado no Multer (upload.array('product-images', 5))
+            // Configurações de restrição
+            const MAX_SIZE_MB = 5;
+            const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+            const ALLOWED_TYPES = [
+                'image/jpeg', 
+                'image/jpg', 
+                'image/png', 
+                'image/webp', 
+                'image/jfif'
+            ];
+
+            // Loop de validação individual por arquivo
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+
+                // Valida o tipo MIME do arquivo
+                if (!ALLOWED_TYPES.includes(file.type)) {
+                    alert(`O arquivo "${file.name}" não é permitido. Use apenas JPG, PNG, WEBP ou JFIF.`);
+                    return;
+                }
+
+                // Valida o tamanho (Máximo 5MB)
+                if (file.size > MAX_SIZE_BYTES) {
+                    alert(`O arquivo "${file.name}" é muito grande. O limite máximo é de ${MAX_SIZE_MB}MB.`);
+                    return;
+                }
+            }
+
+            // 4. Montagem do FormData para envio
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('description', description);
+            formData.append('price', price.toFixed(2));
+
+            // Anexa os arquivos validados ao campo 'product-images'
+            // O nome deve ser o mesmo esperado no backend: upload.array('product-images')
             for (let i = 0; i < files.length; i++) {
                 formData.append('product-images', files[i]);
             }
 
-            // 4. Envio da Requisição
+            // 5. Envio dos dados ao Servidor
             try {
-                // A URL deve ser a mesma da rota POST que você corrigiu: /api/products
                 const response = await fetch('http://localhost:5000/api/products', {
                     method: 'POST',
-                    // Importante: Não definir Content-Type para FormData.
                     body: formData, 
-                    credentials: 'include',
+                    credentials: 'include', // Necessário se houver cookies de sessão
                 });
 
-                // ... (Tratamento da resposta inalterado) ...
-                const data = await response.json().catch(() => ({ message: 'Resposta não JSON' })); 
+                const data = await response.json().catch(() => ({ message: 'Erro ao processar resposta do servidor.' })); 
                 
                 if (response.ok) { 
                     alert('Produto cadastrado com sucesso!');
                     form.reset(); 
                 } else if (response.status === 401 || response.status === 403) {
-                    alert('Sessão expirada ou não autenticada. Redirecionando para o login.');
+                    alert('Sessão expirada. Por favor, faça login novamente.');
                     window.location.href = 'login.html';
                 } else {
-                    console.error('Erro no backend:', data);
-                    alert(`Erro ao cadastrar produto: ${data.message || 'Erro desconhecido.'}`);
+                    console.error('Erro retornado pelo servidor:', data);
+                    alert(`Erro ao cadastrar: ${data.message || 'Ocorreu um problema no servidor.'}`);
                 }
 
             } catch (error) {
-                // ... (Tratamento de erro de rede inalterado) ...
-                console.error('Erro na requisição de cadastro (FALHA DE REDE/CORS):', error);
-                alert('Erro ao conectar com o servidor. Verifique o console do navegador.');
+                console.error('Erro de conexão/CORS:', error);
+                alert('Não foi possível conectar ao servidor. Verifique sua conexão ou se o backend está rodando.');
             }
         });
     }
