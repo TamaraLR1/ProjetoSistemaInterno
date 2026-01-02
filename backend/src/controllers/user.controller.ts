@@ -3,6 +3,8 @@
 import { Request, Response } from 'express';
 import pool from '../database';
 import bcrypt from 'bcryptjs';
+import fs from 'fs'; // Importante para deletar arquivos
+import path from 'path';
 
 interface AuthRequest extends Request {
     userId?: number;
@@ -77,17 +79,35 @@ export const getUserInfo = async (req: AuthRequest, res: Response) => {
 export const updateUserInfo = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
     const { firstName, lastName } = req.body;
-    const avatarFile = req.file; // Pegamos o arquivo processado pelo Multer
-
-    if (!firstName || firstName.trim() === '' || !lastName || lastName.trim() === '') {
-        return res.status(400).json({ message: 'Nome e Sobrenome são obrigatórios.' });
-    }
+    const avatarFile = req.file;
 
     try {
+        // 1. SE o usuário enviou uma imagem nova, precisamos apagar a antiga
+        if (avatarFile) {
+            // Busca o nome do arquivo atual no banco de dados
+            const [rows]: any = await pool.execute(
+                'SELECT avatar_url FROM users WHERE id = ?',
+                [userId]
+            );
+
+            const oldAvatar = rows[0]?.avatar_url;
+
+            // Se existir uma imagem antiga cadastrada, apaga o arquivo físico
+            if (oldAvatar) {
+                const filePath = path.join(__dirname, '../../uploads', oldAvatar);
+                
+                // Verifica se o arquivo realmente existe na pasta antes de tentar apagar
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath); // Deleta o arquivo
+                    console.log(`Arquivo antigo deletado: ${oldAvatar}`);
+                }
+            }
+        }
+
+        // 2. Atualiza os dados no banco de dados
         let sql = 'UPDATE users SET firstName = ?, lastName = ?';
         const params: any[] = [firstName.trim(), lastName.trim()];
 
-        // Se o usuário enviou uma foto nova, atualizamos a coluna avatar_url
         if (avatarFile) {
             sql += ', avatar_url = ?';
             params.push(avatarFile.filename);
@@ -98,13 +118,14 @@ export const updateUserInfo = async (req: AuthRequest, res: Response) => {
 
         const [result]: any = await pool.execute(sql, params);
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Usuário não encontrado.' });
-        }
+        res.json({ 
+            message: 'Perfil atualizado com sucesso!',
+            // Retornamos o novo nome para o frontend se necessário
+            newAvatarUrl: avatarFile ? avatarFile.filename : null 
+        });
 
-        res.json({ message: 'Perfil atualizado com sucesso!' });
     } catch (error) {
-        console.error(error);
+        console.error('Erro ao atualizar perfil:', error);
         res.status(500).json({ message: 'Erro ao atualizar perfil.' });
     }
 };
