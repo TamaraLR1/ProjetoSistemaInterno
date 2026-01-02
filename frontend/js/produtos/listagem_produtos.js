@@ -3,76 +3,91 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingMessage = document.getElementById('loading-message');
     const errorMessage = document.getElementById('error-message');
     
-    // Caminho corrigido para o placeholder (sobe duas pastas)
     const placeholderPath = '../../assets/placeholder.png'; 
 
     const fetchProducts = async () => {
-        // 1. Prepara o estado inicial
         loadingMessage.style.display = 'block';
         errorMessage.style.display = 'none';
         container.innerHTML = ''; 
 
         try {
-            // Adiciona um 'cache buster' para garantir que a lista seja sempre atualizada
-            const cacheBuster = `?v=${new Date().getTime()}`;
-            // A porta 5000 é do seu Backend (Express)
-            const url = `http://localhost:5000/api/products${cacheBuster}`; 
+            const url = `http://localhost:5000/api/products?v=${Date.now()}`; 
+            const response = await fetch(url, { method: 'GET' });
 
-            // Esta rota é pública, então não precisa do 'credentials: include' no fetch, 
-            // mas é bom ter o CORS configurado no servidor.
-            const response = await fetch(url, {
-                method: 'GET',
-            });
-
-            if (!response.ok) {
-                // Tenta ler a mensagem de erro do backend, se houver
-                const errorData = await response.json().catch(() => ({ message: `Erro HTTP: ${response.status}` }));
-                throw new Error(errorData.message || `Erro HTTP: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
 
             const products = await response.json();
+            
+            // Log fundamental para debug
+            console.log("Dados brutos recebidos:", products);
 
-            // 2. Oculta a mensagem de carregamento
             loadingMessage.style.display = 'none';
 
-            if (products.length === 0) {
-                container.innerHTML = '<p style="text-align: center; width: 100%;">Nenhum produto cadastrado ainda.</p>';
+            if (!Array.isArray(products) || products.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Nenhum produto encontrado.</p>';
                 return;
             }
 
-            // 3. Renderiza os cards
             products.forEach(product => {
+                // --- TRATAMENTO SEGURO DE DADOS ---
+                // Verifica se all_images existe. Se for null/undefined, vira array vazio.
+                let imagensArray = [];
+                if (product.all_images) {
+                    imagensArray = typeof product.all_images === 'string' 
+                        ? product.all_images.split(',') 
+                        : product.all_images;
+                }
+
+                // Garante que preço seja número para o toFixed não quebrar
+                const precoFormatado = parseFloat(product.price || 0).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+
+                const mainImg = imagensArray.length > 0 
+                    ? `http://localhost:5000/uploads/${imagensArray[0]}` 
+                    : placeholderPath;
+
+                // --- CRIAÇÃO DO ELEMENTO ---
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 
-                // O controller listProducts garante que `product.image_url` contenha a primeira URL de imagem.
-                const imageUrl = product.image_url && product.image_url.trim() !== ''
-                    ? `http://localhost:5000/uploads/${product.image_url}` 
-                    : placeholderPath; 
-
-                // Log para depuração
-                console.log(`[PRODUTO: ${product.id}] URL da Imagem de Destaque: ${imageUrl}`);
-                
-                // 🌟 ATUALIZAÇÃO: Link para a nova página de DETALHES
                 productCard.innerHTML = `
-                    <img src="${imageUrl}" alt="${product.name}" class="product-image">
-                    <h2>${product.name}</h2>
-                    <p class="product-price">R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}</p>
-                    <p class="product-description">${product.description || 'Sem descrição.'}</p>
-                    
-                    <a href="detalhes_produto.html?id=${product.id}" class="detail-link-btn">
-                        Ver Detalhes
-                    </a>
-                `;
+                    <div class="main-image-container">
+                        <img src="${mainImg}" 
+                             alt="${product.name || 'Produto'}" 
+                             class="product-image" 
+                             id="main-img-${product.id}">
+                    </div>
 
+                    <div class="thumbnails-container">
+                        ${imagensArray.map((img, idx) => `
+                            <img src="http://localhost:5000/uploads/${img}" 
+                                 class="thumbnail-item ${idx === 0 ? 'active' : ''}" 
+                                 onmouseover="document.getElementById('main-img-${product.id}').src=this.src"
+                                 alt="Miniatura">
+                        `).join('')}
+                    </div>
+
+                    <div class="product-info">
+                        <h2>${product.name || 'Sem nome'}</h2>
+                        <p class="product-price">${precoFormatado}</p>
+                        <p class="product-description">${product.description || 'Sem descrição.'}</p>
+                        
+                        <a href="detalhes_produto.html?id=${product.id}" class="detail-link-btn">
+                            Ver Detalhes
+                        </a>
+                    </div>
+                `;
                 container.appendChild(productCard);
             });
 
         } catch (error) {
-            console.error('Erro ao buscar produtos:', error);
+            // Se cair aqui, o erro aparecerá detalhado no console (F12)
+            console.error('Erro detalhado durante a renderização:', error);
             loadingMessage.style.display = 'none';
             errorMessage.style.display = 'block';
-            errorMessage.textContent = 'Ocorreu um erro ao carregar os produtos. Verifique o console.';
+            errorMessage.textContent = `Erro ao processar produtos: ${error.message}`;
         }
     };
 

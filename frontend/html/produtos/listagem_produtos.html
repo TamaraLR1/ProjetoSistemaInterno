@@ -6,7 +6,7 @@
     <title>Todos os Produtos</title>
     
     <link rel="stylesheet" href="../../css/home.css"> 
-    <link rel="stylesheet" href="../../css/listagem.css"> 
+    <link rel="stylesheet" href="../../css/listagem_produtos.css"> 
 </head>
 <body>
     
@@ -43,16 +43,17 @@
                             <li><a href="listagem_produtos.html" class="active">Todos os produtos</a></li>
                         </ul>
                     </li>
-                    
                 </ul>
             </nav>
         </aside>
+
         <main class="main-content">
             <section class="content">
+                <p id="loading-message" style="text-align: center;">Carregando produtos...</p>
+                <p id="error-message" style="color: red; display: none; text-align: center;">Ocorreu um erro ao carregar os produtos.</p>
+
                 <div id="products-list-container" class="products-grid">
-                    <p id="loading-message">Carregando produtos...</p>
-                </div>
-                <p id="error-message" style="color: red; display: none;">Ocorreu um erro ao carregar os produtos.</p>
+                    </div>
             </section>
         </main>
     </div>

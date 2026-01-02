@@ -354,3 +354,29 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
         connection.release(); 
     }
 };
+
+export const getProducts = async (req: Request, res: Response) => {
+    try {
+        // A query utiliza GROUP_CONCAT para trazer todas as URLs em uma string
+        const query = `
+            SELECT 
+                p.id, 
+                p.nome as name, 
+                p.preco as price, 
+                p.descricao as description, 
+                GROUP_CONCAT(pi.image_url) AS all_images
+            FROM produtos p
+            LEFT JOIN product_images pi ON p.id = pi.product_id
+            GROUP BY p.id
+            ORDER BY p.id DESC
+        `;
+
+        const [rows]: any = await pool.execute(query);
+
+        // Retornamos os dados brutos. O Frontend fará o tratamento da string all_images.
+        res.json(rows);
+    } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
+        res.status(500).json({ message: 'Erro ao carregar a listagem de produtos.' });
+    }
+};
