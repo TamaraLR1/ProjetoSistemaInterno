@@ -13,15 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const url = `http://localhost:5000/api/products?v=${Date.now()}`; 
             
-            // ALTERAÇÃO: Adicionado credentials: 'include' para enviar cookies de autenticação
             const response = await fetch(url, { 
                 method: 'GET',
                 credentials: 'include' 
             });
 
-            // Tratamento de Erros de Autenticação
             if (response.status === 401 || response.status === 403) {
-                console.warn("Sessão expirada ou acesso negado.");
                 window.location.href = '../login.html';
                 return;
             }
@@ -29,9 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
 
             const products = await response.json();
-            
-            console.log("Produtos do usuário carregados:", products);
-
             loadingMessage.style.display = 'none';
 
             if (!Array.isArray(products) || products.length === 0) {
@@ -40,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             products.forEach(product => {
-                // --- TRATAMENTO SEGURO DE DADOS ---
+                // --- TRATAMENTO DE IMAGENS ---
                 let imagensArray = [];
                 if (product.all_images) {
                     imagensArray = typeof product.all_images === 'string' 
@@ -57,10 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? `http://localhost:5000/uploads/${imagensArray[0]}` 
                     : placeholderPath;
 
-                // --- CRIAÇÃO DO ELEMENTO ---
+                // --- CRIAÇÃO DO CARD ---
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
+                productCard.style.cursor = 'pointer'; // Indica que o card é clicável
+
+                // Adiciona o evento de clique para redirecionar
+                productCard.onclick = (e) => {
+                    // Se clicar na miniatura, apenas troca a imagem, não sai da página
+                    if (e.target.classList.contains('thumbnail-item')) return;
+                    window.location.href = `detalhes_produto.html?id=${product.id}`;
+                };
                 
+                // Note que o link <a> foi totalmente removido daqui
                 productCard.innerHTML = `
                     <div class="main-image-container">
                         <img src="${mainImg}" 
@@ -82,20 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h2>${product.name || 'Sem nome'}</h2>
                         <p class="product-price">${precoFormatado}</p>
                         <p class="product-description">${product.description || 'Sem descrição.'}</p>
-                        
-                        <a href="detalhes_produto.html?id=${product.id}" class="detail-link-btn">
-                            Ver Detalhes / Editar
-                        </a>
                     </div>
                 `;
                 container.appendChild(productCard);
             });
 
         } catch (error) {
-            console.error('Erro detalhado durante a renderização:', error);
+            console.error('Erro:', error);
             loadingMessage.style.display = 'none';
             errorMessage.style.display = 'block';
-            errorMessage.textContent = `Erro ao processar produtos: ${error.message}`;
+            errorMessage.textContent = `Erro ao carregar produtos.`;
         }
     };
 

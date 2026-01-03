@@ -15,11 +15,15 @@
     overflow: hidden; 
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease;
+    /* Adicionado transition para box-shadow e border para suavizar o hover */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+/* Efeito de Hover no Card Inteiro */
 .product-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    border-color: #007bff; /* Destaca a borda com a cor principal */
 }
 
 /* Área da Imagem de Destaque */
@@ -36,7 +40,7 @@
 .product-image {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain; /* Garante que o produto apareça inteiro */
+    object-fit: contain;
 }
 
 /* Estilo das Miniaturas */
@@ -45,10 +49,11 @@
     gap: 8px;
     padding: 10px 15px;
     justify-content: flex-start;
-    overflow-x: auto; /* Scroll caso tenha muitas fotos */
+    overflow-x: auto;
     background: #fafafa;
 }
 
+/* Garante que o clique na miniatura não pareça clicar no card de fundo */
 .thumbnail-item {
     width: 45px;
     height: 45px;
@@ -57,27 +62,51 @@
     border-radius: 6px;
     cursor: pointer;
     transition: 0.2s;
+    position: relative;
+    z-index: 2; /* Mantém a miniatura acima do link do card se necessário */
 }
 
 .thumbnail-item:hover, .thumbnail-item.active {
     border-color: #007bff;
-    transform: scale(1.05);
+    transform: scale(1.1);
 }
 
-/* Textos e Botão */
-.product-info h2 { font-size: 1.3em; padding: 0 15px; margin: 15px 0 5px; }
-.product-price { font-size: 1.5em; font-weight: bold; color: #28a745; padding: 0 15px; }
-.product-description { font-size: 0.9em; color: #666; padding: 0 15px; height: 40px; overflow: hidden; }
+/* Textos */
+.product-info {
+    padding-bottom: 20px; /* Adicionado um respiro no final já que o botão sumiu */
+}
 
-.detail-link-btn {
-    display: block;
-    margin: 15px;
-    padding: 12px;
-    background-color: #007bff;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    margin-top: auto;
+.product-info h2 { 
+    font-size: 1.3em; 
+    padding: 0 15px; 
+    margin: 15px 0 5px; 
+    color: #333;
+}
+
+.product-price { 
+    font-size: 1.5em; 
+    font-weight: bold; 
+    color: #28a745; 
+    padding: 0 15px; 
+}
+
+.product-description { 
+    font-size: 0.9em; 
+    color: #666; 
+    padding: 0 15px; 
+    
+    /* Altura fixa baseada no line-height para garantir o alinhamento */
+    line-height: 1.4;
+    height: 2.8em; /* 1.4 x 2 linhas = 2.8em */
+    
+    overflow: hidden; 
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    
+    /* Ignora o aviso do editor mas mantém a funcionalidade no navegador */
+    -webkit-line-clamp: 2; 
+    
+    /* Fallback para navegadores ou validadores rigorosos */
+    word-break: break-word;
+    text-overflow: ellipsis;
 }
