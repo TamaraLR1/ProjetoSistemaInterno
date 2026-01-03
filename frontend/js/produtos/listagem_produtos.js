@@ -5,6 +5,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const placeholderPath = '../../assets/placeholder.png'; 
 
+    // Função global para trocar a foto e gerenciar a classe 'active'
+    window.trocarFoto = function(el, productId) {
+        // 1. Atualiza a imagem principal do card correspondente
+        const mainImg = document.getElementById(`main-img-${productId}`);
+        if (mainImg) mainImg.src = el.src;
+
+        // 2. Localiza o container de miniaturas específico deste card
+        const thumbContainer = el.parentElement;
+        
+        // 3. Remove a classe 'active' de todas as miniaturas dentro deste container
+        const allThumbs = thumbContainer.querySelectorAll('.thumbnail-item');
+        allThumbs.forEach(thumb => thumb.classList.remove('active'));
+
+        // 4. Adiciona a classe 'active' apenas na miniatura que disparou o evento
+        el.classList.add('active');
+    };
+
     const fetchProducts = async () => {
         loadingMessage.style.display = 'block';
         errorMessage.style.display = 'none';
@@ -34,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             products.forEach(product => {
-                // --- TRATAMENTO DE IMAGENS ---
                 let imagensArray = [];
                 if (product.all_images) {
                     imagensArray = typeof product.all_images === 'string' 
@@ -51,19 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? `http://localhost:5000/uploads/${imagensArray[0]}` 
                     : placeholderPath;
 
-                // --- CRIAÇÃO DO CARD ---
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
-                productCard.style.cursor = 'pointer'; // Indica que o card é clicável
+                productCard.style.cursor = 'pointer';
 
-                // Adiciona o evento de clique para redirecionar
                 productCard.onclick = (e) => {
-                    // Se clicar na miniatura, apenas troca a imagem, não sai da página
                     if (e.target.classList.contains('thumbnail-item')) return;
                     window.location.href = `detalhes_produto.html?id=${product.id}`;
                 };
                 
-                // Note que o link <a> foi totalmente removido daqui
+                // ALTERAÇÃO: onmouseover agora chama a função trocarFoto passando o elemento (this) e o ID
                 productCard.innerHTML = `
                     <div class="main-image-container">
                         <img src="${mainImg}" 
@@ -76,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${imagensArray.map((img, idx) => `
                             <img src="http://localhost:5000/uploads/${img}" 
                                  class="thumbnail-item ${idx === 0 ? 'active' : ''}" 
-                                 onmouseover="document.getElementById('main-img-${product.id}').src=this.src"
+                                 onmouseover="trocarFoto(this, '${product.id}')"
                                  alt="Miniatura">
                         `).join('')}
                     </div>

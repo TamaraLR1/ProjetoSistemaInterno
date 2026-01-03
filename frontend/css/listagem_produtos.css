@@ -61,7 +61,7 @@
     border: 2px solid #ddd;
     border-radius: 6px;
     cursor: pointer;
-    transition: 0.2s;
+    transition: border-color 0.2s ease, transform 0.2s ease;
     position: relative;
     z-index: 2; /* Mantém a miniatura acima do link do card se necessário */
 }
