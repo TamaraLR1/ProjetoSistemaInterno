@@ -79,10 +79,21 @@ export const getUserInfo = async (req: AuthRequest, res: Response) => {
 export const updateUserInfo = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
     const { firstName, lastName } = req.body;
-    const avatarFile = req.file;
+    
+    // O parseUpload coloca os arquivos em req.files como um array.
+    // Pegamos a primeira posição (index 0) como o nosso novo avatar.
+    const files = req.files as Express.Multer.File[] | undefined;
+    const avatarFile = files && files.length > 0 ? files[0] : null;
 
     try {
-        // 1. SE o usuário enviou uma imagem nova, precisamos apagar a antiga
+        // 1. Verificação de dados básicos
+        if (!firstName || !lastName) {
+            // Se o upload salvou um arquivo mas os dados estão incompletos, limpamos o arquivo
+            if (avatarFile) fs.unlinkSync(avatarFile.path);
+            return res.status(400).json({ message: 'Nome e sobrenome são obrigatórios.' });
+        }
+
+        // 2. SE o usuário enviou uma imagem nova, precisamos apagar a antiga
         if (avatarFile) {
             // Busca o nome do arquivo atual no banco de dados
             const [rows]: any = await pool.execute(
@@ -94,37 +105,42 @@ export const updateUserInfo = async (req: AuthRequest, res: Response) => {
 
             // Se existir uma imagem antiga cadastrada, apaga o arquivo físico
             if (oldAvatar) {
+                // path.join garante que funcione em Windows e Linux
                 const filePath = path.join(__dirname, '../../uploads', oldAvatar);
                 
-                // Verifica se o arquivo realmente existe na pasta antes de tentar apagar
                 if (fs.existsSync(filePath)) {
-                    fs.unlinkSync(filePath); // Deleta o arquivo
+                    fs.unlinkSync(filePath); // Deleta o arquivo antigo
                     console.log(`Arquivo antigo deletado: ${oldAvatar}`);
                 }
             }
         }
 
-        // 2. Atualiza os dados no banco de dados
+        // 3. Atualiza os dados no banco de dados
         let sql = 'UPDATE users SET firstName = ?, lastName = ?';
         const params: any[] = [firstName.trim(), lastName.trim()];
 
         if (avatarFile) {
             sql += ', avatar_url = ?';
+            // Salvamos apenas o filename (ex: 17041234.jfif) conforme o padrão do middleware
             params.push(avatarFile.filename);
         }
 
         sql += ' WHERE id = ?';
         params.push(userId);
 
-        const [result]: any = await pool.execute(sql, params);
+        await pool.execute(sql, params);
 
         res.json({ 
             message: 'Perfil atualizado com sucesso!',
-            // Retornamos o novo nome para o frontend se necessário
+            // Retornamos o novo nome para o frontend atualizar a imagem na tela
             newAvatarUrl: avatarFile ? avatarFile.filename : null 
         });
 
     } catch (error) {
+        // Se der erro no banco, mas o arquivo foi salvo no HD, tentamos limpar
+        if (avatarFile && fs.existsSync(avatarFile.path)) {
+            fs.unlinkSync(avatarFile.path);
+        }
         console.error('Erro ao atualizar perfil:', error);
         res.status(500).json({ message: 'Erro ao atualizar perfil.' });
     }

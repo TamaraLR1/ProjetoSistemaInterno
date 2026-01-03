@@ -11,9 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveBtn = document.getElementById('save-profile-btn');
     const cancelBtn = document.getElementById('cancel-edit-btn');
 
-    // Seleção das mensagens de erro do HTML
     const firstNameError = document.getElementById('firstName-error');
     const lastNameError = document.getElementById('lastName-error');
+
+    // Configurações de validação de imagem
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+    const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/jfif'];
 
     const loadProfile = async () => {
         const res = await fetch('http://localhost:5000/api/user/info', { credentials: 'include' });
@@ -39,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelBtn.style.display = isEditing ? 'inline-block' : 'none';
 
         if (!isEditing) {
-            // Limpa erros visuais ao cancelar
             firstNameInput.style.borderColor = '';
             lastNameInput.style.borderColor = '';
             firstNameError.style.display = 'none';
@@ -50,40 +52,53 @@ document.addEventListener('DOMContentLoaded', () => {
     editBtn.addEventListener('click', () => toggleMode(true));
     btnChangePhoto.addEventListener('click', () => avatarInput.click());
 
+    // --- VALIDAÇÃO EM TEMPO REAL AO SELECIONAR FOTO ---
     avatarInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
-        if (file) avatarPreview.src = URL.createObjectURL(file);
+        if (!file) return;
+
+        // Validação de Formato
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            alert(`O arquivo "${file.name}" não é permitido. Use JPG, PNG, WEBP ou JFIF.`);
+            avatarInput.value = ''; // Limpa o input
+            return;
+        }
+
+        // Validação de Tamanho
+        if (file.size > MAX_SIZE_BYTES) {
+            alert(`O arquivo "${file.name}" é muito grande. O limite é de 5MB.`);
+            avatarInput.value = ''; // Limpa o input
+            return;
+        }
+
+        // Se passar nas validações, mostra o preview
+        avatarPreview.src = URL.createObjectURL(file);
     });
 
     // --- LÓGICA DE VALIDAÇÃO E SUBMIT ---
     profileForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 1. Resetar estados de erro antes de validar
         let hasError = false;
         firstNameError.style.display = 'none';
         lastNameError.style.display = 'none';
         firstNameInput.style.borderColor = '';
         lastNameInput.style.borderColor = '';
 
-        // 2. Validar Nome
         if (firstNameInput.value.trim() === '') {
             firstNameError.style.display = 'block';
             firstNameInput.style.borderColor = 'red';
             hasError = true;
         }
 
-        // 3. Validar Sobrenome
         if (lastNameInput.value.trim() === '') {
             lastNameError.style.display = 'block';
             lastNameInput.style.borderColor = 'red';
             hasError = true;
         }
 
-        // 4. Se houver erro, para a execução aqui
         if (hasError) return;
 
-        // 5. Se não houver erro, prossegue com o FormData
         const formData = new FormData();
         formData.append('firstName', firstNameInput.value.trim());
         formData.append('lastName', lastNameInput.value.trim());
@@ -104,11 +119,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 location.reload();
             } else {
                 const errorData = await response.json();
+                // Aqui o erro do Multer (5MB ou Formato) vindo do Backend será exibido caso a trava do front falhe
                 alert(errorData.message || 'Erro ao atualizar');
             }
         } catch (err) {
             console.error(err);
-            alert('Erro de conexão.');
+            alert('Erro de conexão com o servidor.');
         }
     });
 
