@@ -12,25 +12,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const url = `http://localhost:5000/api/products?v=${Date.now()}`; 
-            const response = await fetch(url, { method: 'GET' });
+            
+            // ALTERAÇÃO: Adicionado credentials: 'include' para enviar cookies de autenticação
+            const response = await fetch(url, { 
+                method: 'GET',
+                credentials: 'include' 
+            });
+
+            // Tratamento de Erros de Autenticação
+            if (response.status === 401 || response.status === 403) {
+                console.warn("Sessão expirada ou acesso negado.");
+                window.location.href = '../login.html';
+                return;
+            }
 
             if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
 
             const products = await response.json();
             
-            // Log fundamental para debug
-            console.log("Dados brutos recebidos:", products);
+            console.log("Produtos do usuário carregados:", products);
 
             loadingMessage.style.display = 'none';
 
             if (!Array.isArray(products) || products.length === 0) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Nenhum produto encontrado.</p>';
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Você ainda não cadastrou nenhum produto.</p>';
                 return;
             }
 
             products.forEach(product => {
                 // --- TRATAMENTO SEGURO DE DADOS ---
-                // Verifica se all_images existe. Se for null/undefined, vira array vazio.
                 let imagensArray = [];
                 if (product.all_images) {
                     imagensArray = typeof product.all_images === 'string' 
@@ -38,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         : product.all_images;
                 }
 
-                // Garante que preço seja número para o toFixed não quebrar
                 const precoFormatado = parseFloat(product.price || 0).toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL'
@@ -75,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p class="product-description">${product.description || 'Sem descrição.'}</p>
                         
                         <a href="detalhes_produto.html?id=${product.id}" class="detail-link-btn">
-                            Ver Detalhes
+                            Ver Detalhes / Editar
                         </a>
                     </div>
                 `;
@@ -83,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } catch (error) {
-            // Se cair aqui, o erro aparecerá detalhado no console (F12)
             console.error('Erro detalhado durante a renderização:', error);
             loadingMessage.style.display = 'none';
             errorMessage.style.display = 'block';

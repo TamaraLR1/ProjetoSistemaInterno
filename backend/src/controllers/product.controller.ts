@@ -4,16 +4,12 @@ import fs from 'fs';
 import path from 'path';
 import { devLog, errorLog } from '../utils/log.util'; 
 
-// Interface estendida para suportar autenticação e arquivos do Multer
 interface AuthRequest extends Request {
     userId?: number; 
     file?: Express.Multer.File;       
     files?: Express.Multer.File[];       
 }
 
-// =======================================================
-// Função Auxiliar de Limpeza
-// =======================================================
 const cleanupFiles = (files?: Express.Multer.File[]) => {
     if (files && files.length > 0) {
         files.forEach(file => {
@@ -25,9 +21,7 @@ const cleanupFiles = (files?: Express.Multer.File[]) => {
     }
 };
 
-// =======================================================
-// 1. Criar Produto
-// =======================================================
+// 1. Criar Produto (Já estava correto)
 export const createProduct = async (req: AuthRequest, res: Response) => {
     const { name, description, price } = req.body;
     const userId = req.userId; 
@@ -44,11 +38,8 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
     }
 
     const connection = await pool.getConnection();
-
     try {
         await connection.beginTransaction();
-
-        // Note: usei p.name/p.description conforme sua tabela original 'products'
         const [result]: any = await connection.execute(
             'INSERT INTO products (name, description, price, user_id) VALUES (?, ?, ?, ?)',
             [name, description, price, userId]
@@ -57,51 +48,42 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
         const newProductId = result.insertId;
 
         if (files && files.length > 0) {
-            const imageInserts = files.map(file => {
-                // O middleware já gera o nome único no filename
-                const image_url = file.filename; 
-                
-                return connection.execute(
+            const imageInserts = files.map(file => 
+                connection.execute(
                     'INSERT INTO product_images (product_id, image_url) VALUES (?, ?)',
-                    [newProductId, image_url]
-                );
-            });
+                    [newProductId, file.filename]
+                )
+            );
             await Promise.all(imageInserts);
         }
 
         await connection.commit();
-
-        return res.status(201).json({ 
-            message: 'Produto cadastrado com sucesso!', 
-            productId: newProductId 
-        });
-
+        return res.status(201).json({ message: 'Produto cadastrado!', productId: newProductId });
     } catch (error) {
         await connection.rollback();
         cleanupFiles(files); 
         errorLog('Erro ao criar produto', error);
-        return res.status(500).json({ message: 'Erro interno ao cadastrar produto.' });
+        return res.status(500).json({ message: 'Erro interno ao cadastrar.' });
     } finally {
         connection.release();
     }
 };
 
-// =======================================================
-// 2. Listar Produtos (Para o Catálogo)
-// =======================================================
-export const listProducts = async (req: Request, res: Response) => {
+// 2. Listar Produtos (Filtrado por usuário logado)
+export const listProducts = async (req: AuthRequest, res: Response) => {
+    const userId = req.userId;
+
     try {
         const query = `
-            SELECT 
-                p.id, p.name, p.description, p.price, p.user_id,
-                GROUP_CONCAT(pi.image_url) AS all_images
+            SELECT p.id, p.name, p.description, p.price, p.user_id,
+                   GROUP_CONCAT(pi.image_url) AS all_images
             FROM products p
             LEFT JOIN product_images pi ON p.id = pi.product_id
+            WHERE p.user_id = ?
             GROUP BY p.id
             ORDER BY p.id DESC
         `;
-
-        const [rows]: any = await pool.execute(query);
+        const [rows]: any = await pool.execute(query, [userId]);
 
         const products = rows.map((product: any) => {
             const images = product.all_images ? product.all_images.split(',') : [];
@@ -111,7 +93,6 @@ export const listProducts = async (req: Request, res: Response) => {
                 all_images: images          
             };
         });
-
         res.json(products);
     } catch (error) {
         errorLog('Erro ao listar produtos', error);
@@ -119,25 +100,22 @@ export const listProducts = async (req: Request, res: Response) => {
     }
 };
 
-// =======================================================
-// 3. Detalhes do Produto
-// =======================================================
+// 3. Detalhes do Produto (Protegido: só o dono vê)
 export const getProductDetails = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
+    const userId = req.userId;
     const productID = parseInt(id);
 
     if (isNaN(productID)) return res.status(400).json({ message: 'ID inválido.' });
     
     try {
+        // Adicionada a trava AND p.user_id = ?
         const [rows]: any = await pool.execute(
-            `SELECT p.*, u.firstName, u.lastName 
-             FROM products p
-             JOIN users u ON p.user_id = u.id
-             WHERE p.id = ?`,
-            [productID]
+            `SELECT p.* FROM products p WHERE p.id = ? AND p.user_id = ?`,
+            [productID, userId]
         );
 
-        if (rows.length === 0) return res.status(404).json({ message: 'Produto não encontrado.' });
+        if (rows.length === 0) return res.status(404).json({ message: 'Produto não encontrado ou acesso negado.' });
 
         const [imageRows]: any = await pool.execute(
             'SELECT image_url FROM product_images WHERE product_id = ? ORDER BY id ASC',
@@ -148,16 +126,13 @@ export const getProductDetails = async (req: AuthRequest, res: Response) => {
             ...rows[0],
             image_urls: imageRows.map((row: any) => row.image_url),
         });
-
     } catch (error) {
         errorLog(`Erro nos detalhes do produto ${productID}`, error);
         return res.status(500).json({ message: 'Erro ao buscar detalhes.' });
     }
 };
 
-// =======================================================
-// 4. Atualizar Produto (Com novas imagens)
-// =======================================================
+// 4. Atualizar Produto (Com trava de propriedade)
 export const updateProductWithImages = async (req: AuthRequest, res: Response) => {
     const { id } = req.params; 
     const { name, description, price } = req.body; 
@@ -171,35 +146,33 @@ export const updateProductWithImages = async (req: AuthRequest, res: Response) =
     }
 
     const connection = await pool.getConnection();
-
     try {
         await connection.beginTransaction();
 
-        // Verificar propriedade
-        const [existing]: any = await connection.execute('SELECT user_id FROM products WHERE id = ?', [productID]);
-        if (existing.length === 0) {
-            cleanupFiles(newFiles);
-            return res.status(404).json({ message: 'Produto não encontrado.' });
-        }
-
-        // Atualizar textos
-        await connection.execute(
-            'UPDATE products SET name = ?, description = ?, price = ? WHERE id = ?',
-            [name, description, price, productID]
+        // Verificar se o produto pertence ao usuário logado antes de qualquer alteração
+        const [existing]: any = await connection.execute(
+            'SELECT id FROM products WHERE id = ? AND user_id = ?', 
+            [productID, userId]
         );
 
-        // Se enviou novas imagens, substitui as antigas
+        if (existing.length === 0) {
+            cleanupFiles(newFiles);
+            return res.status(403).json({ message: 'Você não tem permissão para editar este produto.' });
+        }
+
+        await connection.execute(
+            'UPDATE products SET name = ?, description = ?, price = ? WHERE id = ? AND user_id = ?',
+            [name, description, price, productID, userId]
+        );
+
         if (newFiles && newFiles.length > 0) {
             const [oldImages]: any = await connection.execute('SELECT image_url FROM product_images WHERE product_id = ?', [productID]);
-
-            // Deletar arquivos físicos antigos
             oldImages.forEach((img: any) => {
                 const fullPath = path.join(__dirname, '../../uploads', img.image_url);
                 if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
             });
 
             await connection.execute('DELETE FROM product_images WHERE product_id = ?', [productID]);
-
             const inserts = newFiles.map(file => 
                 connection.execute('INSERT INTO product_images (product_id, image_url) VALUES (?, ?)', [productID, file.filename])
             );
@@ -208,7 +181,6 @@ export const updateProductWithImages = async (req: AuthRequest, res: Response) =
 
         await connection.commit();
         return res.status(200).json({ message: 'Produto atualizado!' });
-
     } catch (error) {
         await connection.rollback();
         cleanupFiles(newFiles); 
@@ -219,27 +191,34 @@ export const updateProductWithImages = async (req: AuthRequest, res: Response) =
     }
 };
 
-// =======================================================
-// 5. Deletar Produto
-// =======================================================
+// 5. Deletar Produto (Com trava de propriedade)
 export const deleteProduct = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
+    const userId = req.userId;
     const productID = parseInt(id);
 
     const connection = await pool.getConnection();
     try {
         await connection.beginTransaction();
 
-        const [images]: any = await connection.execute('SELECT image_url FROM product_images WHERE product_id = ?', [productID]);
+        // Trava: Garante que o produto existe e pertence ao usuário
+        const [existing]: any = await connection.execute(
+            'SELECT id FROM products WHERE id = ? AND user_id = ?', 
+            [productID, userId]
+        );
 
-        // Remover arquivos físicos
+        if (existing.length === 0) {
+            return res.status(403).json({ message: 'Ação não permitida.' });
+        }
+
+        const [images]: any = await connection.execute('SELECT image_url FROM product_images WHERE product_id = ?', [productID]);
         images.forEach((img: any) => {
             const fullPath = path.join(__dirname, '../../uploads', img.image_url);
             if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
         });
 
         await connection.execute('DELETE FROM product_images WHERE product_id = ?', [productID]);
-        await connection.execute('DELETE FROM products WHERE id = ?', [productID]);
+        await connection.execute('DELETE FROM products WHERE id = ? AND user_id = ?', [productID, userId]);
 
         await connection.commit();
         return res.status(200).json({ message: 'Deletado com sucesso.' });
