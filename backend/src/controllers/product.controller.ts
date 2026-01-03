@@ -72,18 +72,24 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
 // 2. Listar Produtos (Filtrado por usuário logado)
 export const listProducts = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
+    const searchTerm = req.query.q as string || ''; // Captura o termo de busca
 
     try {
+        // A Query agora usa LIKE para buscar no nome ou descrição
+        // %termo% encontra a palavra em qualquer posição do texto
         const query = `
             SELECT p.id, p.name, p.description, p.price, p.user_id,
                    GROUP_CONCAT(pi.image_url) AS all_images
             FROM products p
             LEFT JOIN product_images pi ON p.id = pi.product_id
-            WHERE p.user_id = ?
+            WHERE p.user_id = ? 
+            AND (p.name LIKE ? OR p.description LIKE ?)
             GROUP BY p.id
             ORDER BY p.id DESC
         `;
-        const [rows]: any = await pool.execute(query, [userId]);
+
+        const sqlTerm = `%${searchTerm}%`;
+        const [rows]: any = await pool.execute(query, [userId, sqlTerm, sqlTerm]);
 
         const products = rows.map((product: any) => {
             const images = product.all_images ? product.all_images.split(',') : [];
@@ -93,9 +99,10 @@ export const listProducts = async (req: AuthRequest, res: Response) => {
                 all_images: images          
             };
         });
+
         res.json(products);
     } catch (error) {
-        errorLog('Erro ao listar produtos', error);
+        errorLog('Erro ao listar/buscar produtos', error);
         res.status(500).json({ message: 'Erro ao buscar produtos.' });
     }
 };

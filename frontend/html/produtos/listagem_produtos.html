@@ -49,11 +49,17 @@
 
         <main class="main-content">
             <section class="content">
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Pesquisar por nome ou descrição...">
+                    <button id="search-button">Buscar</button>
+                    <button id="clear-search-button">Ver todos</button>
+                </div>
+                
                 <p id="loading-message" style="text-align: center;">Carregando produtos...</p>
                 <p id="error-message" style="color: red; display: none; text-align: center;">Ocorreu um erro ao carregar os produtos.</p>
 
                 <div id="products-list-container" class="products-grid">
-                    </div>
+                </div>
             </section>
         </main>
     </div>

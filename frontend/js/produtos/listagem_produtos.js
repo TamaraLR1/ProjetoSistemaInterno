@@ -3,32 +3,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingMessage = document.getElementById('loading-message');
     const errorMessage = document.getElementById('error-message');
     
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    const clearSearchButton = document.getElementById('clear-search-button'); // Novo elemento
+
     const placeholderPath = '../../assets/placeholder.png'; 
 
-    // Função global para trocar a foto e gerenciar a classe 'active'
     window.trocarFoto = function(el, productId) {
-        // 1. Atualiza a imagem principal do card correspondente
         const mainImg = document.getElementById(`main-img-${productId}`);
         if (mainImg) mainImg.src = el.src;
-
-        // 2. Localiza o container de miniaturas específico deste card
         const thumbContainer = el.parentElement;
-        
-        // 3. Remove a classe 'active' de todas as miniaturas dentro deste container
         const allThumbs = thumbContainer.querySelectorAll('.thumbnail-item');
         allThumbs.forEach(thumb => thumb.classList.remove('active'));
-
-        // 4. Adiciona a classe 'active' apenas na miniatura que disparou o evento
         el.classList.add('active');
     };
 
-    const fetchProducts = async () => {
+    const fetchProducts = async (q = '') => {
+        if (!container) return;
+
         loadingMessage.style.display = 'block';
         errorMessage.style.display = 'none';
         container.innerHTML = ''; 
 
         try {
-            const url = `http://localhost:5000/api/products?v=${Date.now()}`; 
+            const url = `http://localhost:5000/api/products?q=${encodeURIComponent(q)}&v=${Date.now()}`; 
             
             const response = await fetch(url, { 
                 method: 'GET',
@@ -40,13 +38,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-
             const products = await response.json();
             loadingMessage.style.display = 'none';
 
             if (!Array.isArray(products) || products.length === 0) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Você ainda não cadastrou nenhum produto.</p>';
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 20px;">
+                        <p>Nenhum produto encontrado.</p>
+                        <button onclick="document.getElementById('search-input').value=''; location.reload();" 
+                                style="color: #007bff; background: none; border: none; cursor: pointer; text-decoration: underline;">
+                            Ver lista completa
+                        </button>
+                    </div>`;
                 return;
             }
 
@@ -59,8 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const precoFormatado = parseFloat(product.price || 0).toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
+                    style: 'currency', currency: 'BRL'
                 });
 
                 const mainImg = imagensArray.length > 0 
@@ -76,15 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = `detalhes_produto.html?id=${product.id}`;
                 };
                 
-                // ALTERAÇÃO: onmouseover agora chama a função trocarFoto passando o elemento (this) e o ID
                 productCard.innerHTML = `
                     <div class="main-image-container">
-                        <img src="${mainImg}" 
-                             alt="${product.name || 'Produto'}" 
-                             class="product-image" 
-                             id="main-img-${product.id}">
+                        <img src="${mainImg}" alt="${product.name}" class="product-image" id="main-img-${product.id}">
                     </div>
-
                     <div class="thumbnails-container">
                         ${imagensArray.map((img, idx) => `
                             <img src="http://localhost:5000/uploads/${img}" 
@@ -93,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                  alt="Miniatura">
                         `).join('')}
                     </div>
-
                     <div class="product-info">
                         <h2>${product.name || 'Sem nome'}</h2>
                         <p class="product-price">${precoFormatado}</p>
@@ -105,11 +101,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Erro:', error);
-            loadingMessage.style.display = 'none';
-            errorMessage.style.display = 'block';
-            errorMessage.textContent = `Erro ao carregar produtos.`;
+            if(loadingMessage) loadingMessage.style.display = 'none';
+            if(errorMessage) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = `Erro ao carregar produtos.`;
+            }
         }
     };
+
+    // Eventos de Busca
+    if (searchButton && searchInput) {
+        searchButton.addEventListener('click', () => fetchProducts(searchInput.value));
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchProducts(searchInput.value);
+        });
+    }
+
+    // EVENTO DO BOTÃO VER TODOS
+    if (clearSearchButton) {
+        clearSearchButton.addEventListener('click', () => {
+            searchInput.value = ''; // Limpa o campo de texto
+            fetchProducts('');      // Busca sem filtros
+        });
+    }
 
     fetchProducts();
 });
