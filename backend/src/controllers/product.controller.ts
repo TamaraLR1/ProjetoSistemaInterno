@@ -106,29 +106,40 @@ export const getProductDetails = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
     const productID = parseInt(id);
 
-    if (isNaN(productID)) return res.status(400).json({ message: 'ID inválido.' });
+    if (isNaN(productID)) {
+        return res.status(400).json({ message: 'ID inválido.' });
+    }
     
     try {
-        // Adicionada a trava AND p.user_id = ?
+        // Selecionamos apenas as colunas da tabela products (p.*)
+        // A trava 'AND p.user_id = ?' garante que apenas o dono acesse
         const [rows]: any = await pool.execute(
             `SELECT p.* FROM products p WHERE p.id = ? AND p.user_id = ?`,
             [productID, userId]
         );
 
-        if (rows.length === 0) return res.status(404).json({ message: 'Produto não encontrado ou acesso negado.' });
+        // Se o produto não existir ou pertencer a outro usuário, retornamos 404
+        if (rows.length === 0) {
+            return res.status(404).json({ 
+                message: 'Produto não encontrado ou você não tem permissão para visualizá-lo.' 
+            });
+        }
 
+        // Busca as imagens associadas a este produto específico
         const [imageRows]: any = await pool.execute(
             'SELECT image_url FROM product_images WHERE product_id = ? ORDER BY id ASC',
             [productID]
         );
 
+        // Retorna o produto e o array de strings com as URLs das imagens
         return res.status(200).json({
             ...rows[0],
             image_urls: imageRows.map((row: any) => row.image_url),
         });
+
     } catch (error) {
         errorLog(`Erro nos detalhes do produto ${productID}`, error);
-        return res.status(500).json({ message: 'Erro ao buscar detalhes.' });
+        return res.status(500).json({ message: 'Erro ao buscar detalhes do produto.' });
     }
 };
 

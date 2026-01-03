@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Elementos de exibição
     const nameTitle = document.getElementById('product-name-title');
     const priceSpan = document.getElementById('product-price');
-    const sellerSpan = document.getElementById('product-seller'); // Elemento para o nome do vendedor
     const descriptionSpan = document.getElementById('product-description');
     const imagesContainer = document.getElementById('product-images-container');
     const editLink = document.getElementById('edit-link'); 
@@ -47,9 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 1. Exibir Detalhes de Texto
             nameTitle.textContent = product.name;
             priceSpan.textContent = `R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}`;
-            
-            // CORREÇÃO: Usar firstName e lastName do vendedor
-            sellerSpan.textContent = `${product.firstName || 'Desconhecido'} ${product.lastName || ''}`.trim();
+    
 
             descriptionSpan.textContent = product.description || 'Nenhuma descrição fornecida.';
 
