@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
-    const clearSearchButton = document.getElementById('clear-search-button'); // Novo elemento
+    const clearSearchButton = document.getElementById('clear-search-button');
 
     const placeholderPath = '../../assets/placeholder.png'; 
 
@@ -65,6 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     style: 'currency', currency: 'BRL'
                 });
 
+                // --- Lógica de Estoque ---
+                const stock = parseInt(product.stock_quantity || 0);
+                let stockHTML = '';
+
+                if (stock === 0) {
+                    stockHTML = `<span class="stock-badge out-of-stock">Produto sem estoque!</span>`;
+                } else {
+                    stockHTML = `<span class="stock-badge in-stock">Estoque: ${stock} un.</span>`;
+                }
+                // -------------------------
+
                 const mainImg = imagensArray.length > 0 
                     ? `http://localhost:5000/uploads/${imagensArray[0]}` 
                     : placeholderPath;
@@ -91,7 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         `).join('')}
                     </div>
                     <div class="product-info">
-                        <h2>${product.name || 'Sem nome'}</h2>
+                        <div class="product-header">
+                            <h2>${product.name || 'Sem nome'}</h2>
+                            ${stockHTML}
+                        </div>
                         <p class="product-price">${precoFormatado}</p>
                         <p class="product-description">${product.description || 'Sem descrição.'}</p>
                     </div>
@@ -117,11 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // EVENTO DO BOTÃO VER TODOS
     if (clearSearchButton) {
         clearSearchButton.addEventListener('click', () => {
-            searchInput.value = ''; // Limpa o campo de texto
-            fetchProducts('');      // Busca sem filtros
+            searchInput.value = ''; 
+            fetchProducts('');      
         });
     }
 

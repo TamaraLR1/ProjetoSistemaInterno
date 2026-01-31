@@ -20,19 +20,16 @@
     </header>
 
     <div class="page-container">
-        
         <aside class="sidebar">
             <nav>
                 <ul>
                     <li><a href="../home.html">Início</a></li>
-
                     <li class="has-submenu">
                         <a href="../perfil/perfil.html">Perfil</a>
                         <ul class="submenu">
                             <li><a href="../perfil/perfil.html">Editar usuário</a></li>
                         </ul>
                     </li>
-                    
                     <li class="has-submenu">
                         <a href="#" class="active">Produtos</a> 
                         <ul class="submenu">
@@ -40,7 +37,12 @@
                             <li><a href="listagem_produtos.html">Todos os produtos</a></li>
                         </ul>
                     </li>
-                    
+                    <li class="has-submenu">
+                        <a href="#">Estoque</a>
+                        <ul class="submenu">
+                            <li><a href="../estoque/controle_estoque.html">Entradas e Saídas</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </nav>
         </aside>
@@ -49,20 +51,26 @@
             <section class="form-card">
                 <h2>Preencha os dados do novo produto</h2>
                 <form id="product-register-form">
-                    
                     <div class="input-group">
                         <label for="product-name">Nome</label>
-                        <input type="text" id="product-name" name="product-name" required>
+                        <input type="text" id="product-name" name="name" required>
                     </div>
                     
                     <div class="input-group">
                         <label for="product-description">Descrição</label>
-                        <textarea id="product-description" name="product-description" rows="4" required></textarea>
+                        <textarea id="product-description" name="description" rows="4" required></textarea>
                     </div>
 
-                    <div class="input-group">
-                        <label for="product-price">Preço</label>
-                        <input type="number" id="product-price" name="product-price" step="0.01" min="0" required>
+                    <div style="display: flex; gap: 20px;">
+                        <div class="input-group" style="flex: 1;">
+                            <label for="product-price">Preço (R$)</label>
+                            <input type="number" id="product-price" name="price" step="0.01" min="0" required>
+                        </div>
+                        
+                        <div class="input-group" style="flex: 1;">
+                            <label for="product-stock">Estoque Inicial</label>
+                            <input type="number" id="product-stock" name="stock_quantity" min="0" value="0" required>
+                        </div>
                     </div>
                     
                     <div class="input-group">
@@ -79,5 +87,5 @@
     </div>
     <script src="../../js/home.js"></script>
     <script src="../../js/produtos/cadastro_produtos.js"></script>
-    </body>
-</html>]
+</body>
+</html>

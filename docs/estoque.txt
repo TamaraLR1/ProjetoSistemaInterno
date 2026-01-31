@@ -1,0 +1,24 @@
+O atributo reason (motivo) funciona como uma etiqueta descritiva para cada movimentação. Em sistemas de estoque, ele é fundamental para a auditoria, pois uma alteração na quantidade (ex: -10 unidades) pode significar coisas completamente diferentes dependendo do contexto.
+
+Sem o campo reason, você saberia quanto saiu, mas nunca saberia por que saiu.
+
+1. Exemplos Práticos de Uso
+Imagine que o estoque de um produto caiu em 5 unidades. O campo reason esclarece a situação:
+
+Entradas (IN):
+
+reason: "Cadastro Inicial" (Quando o produto acaba de ser criado).
+
+reason: "Reposição de Fornecedor" (Nova compra chegou).
+
+reason: "Devolução de Cliente" (O produto voltou para a prateleira).
+
+Saídas (OUT):
+
+reason: "Venda - Pedido #1024" (Saída automática por venda).
+
+reason: "Produto Danificado" (Perda física no armazém).
+
+reason: "Brinde/Amostra Grátis" (Saída para marketing).
+
+reason: "Ajuste de Inventário" (Correção manual após contagem física).

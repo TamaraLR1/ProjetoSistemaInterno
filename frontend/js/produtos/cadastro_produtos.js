@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('product-name');
     const descriptionInput = document.getElementById('product-description');
     const priceInput = document.getElementById('product-price');
+    const stockInput = document.getElementById('product-stock'); // NOVO: Seleção do campo de estoque
     const imagesInput = document.getElementById('product-images'); 
 
     if (form) {
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = nameInput.value.trim();
             const description = descriptionInput ? descriptionInput.value.trim() : '';
             const priceRaw = priceInput.value.replace(',', '.');
+            const stockRaw = stockInput ? stockInput.value.trim() : '0'; // NOVO: Coleta do estoque
             
             // Validação simples de preenchimento
             if (!name || !priceRaw) {
@@ -27,6 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // NOVO: Validação do Estoque
+            const stock_quantity = parseInt(stockRaw);
+            if (isNaN(stock_quantity) || stock_quantity < 0) {
+                alert("Por favor, insira uma quantidade de estoque válida (mínimo 0).");
+                return;
+            }
+
             // 3. Validação de Arquivos (Tamanho e Tipo)
             const files = imagesInput.files;
 
@@ -35,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  return;
             }
 
-            // Configurações de restrição
             const MAX_SIZE_MB = 5;
             const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
             const ALLOWED_TYPES = [
@@ -46,17 +54,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 'image/jfif'
             ];
 
-            // Loop de validação individual por arquivo
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
 
-                // Valida o tipo MIME do arquivo
                 if (!ALLOWED_TYPES.includes(file.type)) {
                     alert(`O arquivo "${file.name}" não é permitido. Use apenas JPG, PNG, WEBP ou JFIF.`);
                     return;
                 }
 
-                // Valida o tamanho (Máximo 5MB)
                 if (file.size > MAX_SIZE_BYTES) {
                     alert(`O arquivo "${file.name}" é muito grande. O limite máximo é de ${MAX_SIZE_MB}MB.`);
                     return;
@@ -68,9 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('name', name);
             formData.append('description', description);
             formData.append('price', price.toFixed(2));
+            formData.append('stock_quantity', stock_quantity); 
 
-            // Anexa os arquivos validados ao campo 'product-images'
-            // O nome deve ser o mesmo esperado no backend: upload.array('product-images')
             for (let i = 0; i < files.length; i++) {
                 formData.append('product-images', files[i]);
             }
@@ -80,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch('http://localhost:5000/api/products', {
                     method: 'POST',
                     body: formData, 
-                    credentials: 'include', // Necessário se houver cookies de sessão
+                    credentials: 'include',
                 });
 
                 const data = await response.json().catch(() => ({ message: 'Erro ao processar resposta do servidor.' })); 

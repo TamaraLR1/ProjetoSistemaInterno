@@ -1,0 +1,8 @@
+Set-Cookie: authToken=eyJhbGciOiJIUzI1NiI...[JWT_TOKEN]; Max-Age=3600; HttpOnly; SameSite=Strict; Secure; Path=/
+
+
+Middleware (auth.middleware.ts)	Autenticação: Verificar se o token existe, se é válido, se não está expirado, e decodificá-lo.
+Controller (user.controller.ts)	Lógica de Negócios: Receber o ID do usuário (já autenticado), buscar dados no banco de dados e formatar a resposta.
+
+
+Dashboard Estatístico: Criar uma área na Home que mostre: "Você possui X produtos cadastrados que totalizam R$ Y".

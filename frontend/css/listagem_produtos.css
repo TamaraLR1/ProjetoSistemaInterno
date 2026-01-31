@@ -15,15 +15,13 @@
     overflow: hidden; 
     display: flex;
     flex-direction: column;
-    /* Adicionado transition para box-shadow e border para suavizar o hover */
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-/* Efeito de Hover no Card Inteiro */
 .product-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-    border-color: #007bff; /* Destaca a borda com a cor principal */
+    border-color: #007bff;
 }
 
 /* Área da Imagem de Destaque */
@@ -53,7 +51,6 @@
     background: #fafafa;
 }
 
-/* Garante que o clique na miniatura não pareça clicar no card de fundo */
 .thumbnail-item {
     width: 45px;
     height: 45px;
@@ -63,7 +60,7 @@
     cursor: pointer;
     transition: border-color 0.2s ease, transform 0.2s ease;
     position: relative;
-    z-index: 2; /* Mantém a miniatura acima do link do card se necessário */
+    z-index: 2;
 }
 
 .thumbnail-item:hover, .thumbnail-item.active {
@@ -71,16 +68,55 @@
     transform: scale(1.1);
 }
 
-/* Textos */
+/* Textos e Info */
 .product-info {
-    padding-bottom: 20px; /* Adicionado um respiro no final já que o botão sumiu */
+    padding-bottom: 20px;
+}
+
+/* NOVO: Header interno para alinhar Nome e Badge */
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0 15px;
+    margin-top: 15px;
 }
 
 .product-info h2 { 
-    font-size: 1.3em; 
-    padding: 0 15px; 
-    margin: 15px 0 5px; 
+    font-size: 1.1em; /* Ajustado para caber o badge ao lado */
+    margin: 0;
     color: #333;
+    flex: 1;
+}
+
+/* Estilização dos Badges de Estoque */
+.stock-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.in-stock {
+    background-color: #e6f4ea;
+    color: #1e7e34;
+    border: 1px solid #c3e6cb;
+}
+
+.out-of-stock {
+    background-color: #fce8e6;
+    color: #d93025;
+    border: 1px solid #f5c6cb;
+    animation: pulse-border 2s infinite; /* Pequena animação para chamar atenção */
+}
+
+@keyframes pulse-border {
+    0% { border-color: #f5c6cb; }
+    50% { border-color: #d93025; }
+    100% { border-color: #f5c6cb; }
 }
 
 .product-price { 
@@ -88,29 +124,24 @@
     font-weight: bold; 
     color: #28a745; 
     padding: 0 15px; 
+    margin: 5px 0;
 }
 
 .product-description { 
     font-size: 0.9em; 
     color: #666; 
     padding: 0 15px; 
-    
-    /* Altura fixa baseada no line-height para garantir o alinhamento */
     line-height: 1.4;
-    height: 2.8em; /* 1.4 x 2 linhas = 2.8em */
-    
+    height: 2.8em; 
     overflow: hidden; 
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    
-    /* Ignora o aviso do editor mas mantém a funcionalidade no navegador */
     -webkit-line-clamp: 2; 
-    
-    /* Fallback para navegadores ou validadores rigorosos */
     word-break: break-word;
     text-overflow: ellipsis;
 }
 
+/* Busca */
 .search-container {
     display: flex;
     gap: 10px;

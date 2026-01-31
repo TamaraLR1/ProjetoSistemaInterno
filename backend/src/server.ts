@@ -10,6 +10,8 @@ import userRoutes from './routes/user.routes';
 import authRoutes from './routes/auth.routes'; 
 import productRoutes from './routes/product.routes'; // Importar rotas de produto
 
+import inventoryRoutes from './routes/inventory.routes';
+
 dotenv.config();
 
 const app = express();
@@ -38,6 +40,7 @@ app.use('/uploads', express.static(UPLOADS_PATH));
 app.use('/api', userRoutes);
 app.use('/api', authRoutes);
 app.use('/api', productRoutes); // Incluir rotas de produto
+app.use('/api/inventory', inventoryRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);

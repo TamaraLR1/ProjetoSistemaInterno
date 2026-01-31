@@ -1,0 +1,8 @@
+Como exceutar o servidor frontend
+
+http-server -p 8000
+
+
+COmo executar o servidor backend
+
+npm run dev

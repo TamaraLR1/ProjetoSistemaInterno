@@ -21,9 +21,9 @@ const cleanupFiles = (files?: Express.Multer.File[]) => {
     }
 };
 
-// 1. Criar Produto (Já estava correto)
+// 1. Criar Produto com Estoque Inicial
 export const createProduct = async (req: AuthRequest, res: Response) => {
-    const { name, description, price } = req.body;
+    const { name, description, price, stock_quantity } = req.body;
     const userId = req.userId; 
     const files = req.files as Express.Multer.File[] | undefined;
 
@@ -40,13 +40,24 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
     const connection = await pool.getConnection();
     try {
         await connection.beginTransaction();
+
+        // Insere o produto com a nova coluna stock_quantity
         const [result]: any = await connection.execute(
-            'INSERT INTO products (name, description, price, user_id) VALUES (?, ?, ?, ?)',
-            [name, description, price, userId]
+            'INSERT INTO products (name, description, price, user_id, stock_quantity) VALUES (?, ?, ?, ?, ?)',
+            [name, description, price, userId, stock_quantity || 0]
         );
 
         const newProductId = result.insertId;
 
+        // Registra o movimento inicial no histórico de estoque
+        if (stock_quantity && parseInt(stock_quantity) > 0) {
+            await connection.execute(
+                'INSERT INTO inventory_movements (product_id, user_id, quantity, movement_type, reason) VALUES (?, ?, ?, ?, ?)',
+                [newProductId, userId, stock_quantity, 'IN', 'Estoque inicial via cadastro']
+            );
+        }
+
+        // Inserção de imagens
         if (files && files.length > 0) {
             const imageInserts = files.map(file => 
                 connection.execute(
@@ -58,7 +69,7 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
         }
 
         await connection.commit();
-        return res.status(201).json({ message: 'Produto cadastrado!', productId: newProductId });
+        return res.status(201).json({ message: 'Produto cadastrado com sucesso!', productId: newProductId });
     } catch (error) {
         await connection.rollback();
         cleanupFiles(files); 
@@ -69,17 +80,15 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// 2. Listar Produtos (Filtrado por usuário logado)
+// 2. Listar Produtos (Incluindo saldo de estoque)
 export const listProducts = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
-    const searchTerm = req.query.q as string || ''; // Captura o termo de busca
+    const searchTerm = req.query.q as string || ''; 
 
     try {
-        // A Query agora usa LIKE para buscar no nome ou descrição
-        // %termo% encontra a palavra em qualquer posição do texto
         const query = `
-            SELECT p.id, p.name, p.description, p.price, p.user_id,
-                   GROUP_CONCAT(pi.image_url) AS all_images
+            SELECT p.id, p.name, p.description, p.price, p.stock_quantity, p.user_id,
+                    GROUP_CONCAT(pi.image_url) AS all_images
             FROM products p
             LEFT JOIN product_images pi ON p.id = pi.product_id
             WHERE p.user_id = ? 
@@ -107,7 +116,7 @@ export const listProducts = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// 3. Detalhes do Produto (Protegido: só o dono vê)
+// 3. Detalhes do Produto (Incluindo saldo de estoque)
 export const getProductDetails = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.userId;
@@ -118,27 +127,22 @@ export const getProductDetails = async (req: AuthRequest, res: Response) => {
     }
     
     try {
-        // Selecionamos apenas as colunas da tabela products (p.*)
-        // A trava 'AND p.user_id = ?' garante que apenas o dono acesse
         const [rows]: any = await pool.execute(
             `SELECT p.* FROM products p WHERE p.id = ? AND p.user_id = ?`,
             [productID, userId]
         );
 
-        // Se o produto não existir ou pertencer a outro usuário, retornamos 404
         if (rows.length === 0) {
             return res.status(404).json({ 
-                message: 'Produto não encontrado ou você não tem permissão para visualizá-lo.' 
+                message: 'Produto não encontrado ou sem permissão.' 
             });
         }
 
-        // Busca as imagens associadas a este produto específico
         const [imageRows]: any = await pool.execute(
             'SELECT image_url FROM product_images WHERE product_id = ? ORDER BY id ASC',
             [productID]
         );
 
-        // Retorna o produto e o array de strings com as URLs das imagens
         return res.status(200).json({
             ...rows[0],
             image_urls: imageRows.map((row: any) => row.image_url),
@@ -146,11 +150,11 @@ export const getProductDetails = async (req: AuthRequest, res: Response) => {
 
     } catch (error) {
         errorLog(`Erro nos detalhes do produto ${productID}`, error);
-        return res.status(500).json({ message: 'Erro ao buscar detalhes do produto.' });
+        return res.status(500).json({ message: 'Erro ao buscar detalhes.' });
     }
 };
 
-// 4. Atualizar Produto (Com trava de propriedade)
+// 4. Atualizar Produto (Mantém o stock_quantity atual)
 export const updateProductWithImages = async (req: AuthRequest, res: Response) => {
     const { id } = req.params; 
     const { name, description, price } = req.body; 
@@ -167,7 +171,6 @@ export const updateProductWithImages = async (req: AuthRequest, res: Response) =
     try {
         await connection.beginTransaction();
 
-        // Verificar se o produto pertence ao usuário logado antes de qualquer alteração
         const [existing]: any = await connection.execute(
             'SELECT id FROM products WHERE id = ? AND user_id = ?', 
             [productID, userId]
@@ -175,7 +178,7 @@ export const updateProductWithImages = async (req: AuthRequest, res: Response) =
 
         if (existing.length === 0) {
             cleanupFiles(newFiles);
-            return res.status(403).json({ message: 'Você não tem permissão para editar este produto.' });
+            return res.status(403).json({ message: 'Permissão negada.' });
         }
 
         await connection.execute(
@@ -209,7 +212,7 @@ export const updateProductWithImages = async (req: AuthRequest, res: Response) =
     }
 };
 
-// 5. Deletar Produto (Com trava de propriedade)
+// 5. Deletar Produto
 export const deleteProduct = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.userId;
@@ -219,7 +222,6 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
     try {
         await connection.beginTransaction();
 
-        // Trava: Garante que o produto existe e pertence ao usuário
         const [existing]: any = await connection.execute(
             'SELECT id FROM products WHERE id = ? AND user_id = ?', 
             [productID, userId]
@@ -235,7 +237,8 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
             if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
         });
 
-        await connection.execute('DELETE FROM product_images WHERE product_id = ?', [productID]);
+        // O DELETE CASCADE no banco cuidará das imagens e movimentações, 
+        // mas as imagens físicas removemos manualmente acima.
         await connection.execute('DELETE FROM products WHERE id = ? AND user_id = ?', [productID, userId]);
 
         await connection.commit();

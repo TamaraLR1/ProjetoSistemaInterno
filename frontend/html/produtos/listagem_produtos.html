@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todos os Produtos</title>
+    <title>Todos os Produtos - Gestão de Vendedor</title>
     
     <link rel="stylesheet" href="../../css/home.css"> 
     <link rel="stylesheet" href="../../css/listagem_produtos.css"> 
@@ -43,6 +43,13 @@
                             <li><a href="listagem_produtos.html" class="active">Todos os produtos</a></li>
                         </ul>
                     </li>
+
+                    <li class="has-submenu">
+                        <a href="#">Estoque</a>
+                        <ul class="submenu">
+                            <li><a href="../estoque/controle_estoque.html">Entradas e Saídas</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </nav>
         </aside>
@@ -55,11 +62,15 @@
                     <button id="clear-search-button">Ver todos</button>
                 </div>
                 
+                <div class="inventory-summary-hint" style="margin-bottom: 20px; font-size: 0.9rem; color: #666;">
+                    <small>Dica: Produtos com <strong>"Produto sem estoque!"</strong> não aparecem para venda no e-commerce geral.</small>
+                </div>
+
                 <p id="loading-message" style="text-align: center;">Carregando produtos...</p>
                 <p id="error-message" style="color: red; display: none; text-align: center;">Ocorreu um erro ao carregar os produtos.</p>
 
                 <div id="products-list-container" class="products-grid">
-                </div>
+                    </div>
             </section>
         </main>
     </div>
