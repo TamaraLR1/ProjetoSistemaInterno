@@ -30,6 +30,28 @@ export const getPublicProducts = async (req: Request, res: Response) => {
     }
 };
 
+export const getProductById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT 
+                p.id, p.name, p.price, p.description, p.stock_quantity, 
+                CONCAT(u.firstName, ' ', u.lastName) as seller_name,
+                (SELECT image_url FROM product_images WHERE product_id = p.id LIMIT 1) as main_image
+            FROM products p
+            INNER JOIN users u ON p.user_id = u.id
+            WHERE p.id = ?
+        `;
+        const [rows]: any = await pool.execute(query, [id]);
+        
+        if (rows.length === 0) return res.status(404).json({ message: "Produto não encontrado" });
+        
+        return res.json(rows[0]);
+    } catch (error) {
+        return res.status(500).json({ message: 'Erro ao buscar detalhes.' });
+    }
+};
+
 // Opcional: Buscar produtos por categoria
 export const getProductsByCategory = async (req: Request, res: Response) => {
     // Pegamos o ID que vem da rota amigável definida no seu router
@@ -62,3 +84,4 @@ export const getProductsByCategory = async (req: Request, res: Response) => {
         });
     }
 };
+

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Produto | Mega Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/ecommerce/index.css">
+    <link rel="stylesheet" href="css/ecommerce/produto-detalhes.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo"><a href="index.html"><h1>Mega Store</h1></a></div>
+            <div class="header-actions">
+                <a href="index.html" class="icon-link">
+                    <i class="fas fa-arrow-left"></i><span>Voltar</span>
+                </a>
+                <a href="#" class="icon-link cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="product-details-content" class="product-details-wrapper">
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Carregando informações do produto...</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/ecommerce/produto.js"></script>
+</body>
+</html>
