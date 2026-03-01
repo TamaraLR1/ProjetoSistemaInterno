@@ -8,37 +8,36 @@ async function loadCategories() {
         const grid = document.getElementById('categories-cards-grid');
 
         grid.innerHTML = categories.map(cat => `
-            <div class="category-card" onclick="filterByCategory(${cat.id}, '${cat.name}')">
+            <div class="category-card" onclick="goToCategory(${cat.id}, '${cat.name}')">
                 <div class="category-icon"><i class="fas fa-tag"></i></div>
                 <h3>${cat.name}</h3>
             </div>
         `).join('');
-        
         setupCarousel();
-    } catch (err) { console.error("Erro categorias:", err); }
+    } catch (err) { console.error(err); }
 }
+
+// REDIRECIONAMENTO PARA NOVA TELA
+window.goToCategory = (id, name) => {
+    window.location.href = `categoria.html?id=${id}&name=${encodeURIComponent(name)}`;
+};
 
 function setupCarousel() {
     const wrapper = document.getElementById('categories-wrapper');
     const btnNext = document.getElementById('next-cat');
     const btnPrev = document.getElementById('prev-cat');
-
     btnNext.onclick = () => wrapper.scrollLeft += wrapper.clientWidth;
     btnPrev.onclick = () => wrapper.scrollLeft -= wrapper.clientWidth;
-
     wrapper.onscroll = () => {
         btnPrev.style.display = wrapper.scrollLeft > 20 ? 'flex' : 'none';
-        const isEnd = wrapper.scrollLeft >= (wrapper.scrollWidth - wrapper.clientWidth - 20);
-        btnNext.style.display = isEnd ? 'none' : 'flex';
+        btnNext.style.display = wrapper.scrollLeft >= (wrapper.scrollWidth - wrapper.clientWidth - 20) ? 'none' : 'flex';
     };
 }
 
-async function loadProducts(catId = null) {
+async function loadProducts() {
     const grid = document.getElementById('ecommerce-products-grid');
-    grid.innerHTML = '<p>Carregando ofertas...</p>';
     try {
-        let url = `${API_URL}/public/products${catId ? `?category_id=${catId}` : ''}`;
-        const res = await fetch(url);
+        const res = await fetch(`${API_URL}/public/products`);
         const data = await res.json();
         grid.innerHTML = data.map(p => `
             <div class="product-card">
@@ -49,18 +48,6 @@ async function loadProducts(catId = null) {
         `).join('');
     } catch (e) { console.error(e); }
 }
-
-window.filterByCategory = (id, name) => {
-    document.getElementById('vitrine-title').innerText = `Filtrado por: ${name}`;
-    document.getElementById('btn-clear-filter').style.display = 'block';
-    loadProducts(id);
-};
-
-window.clearFilter = () => {
-    document.getElementById('vitrine-title').innerText = "Ofertas do Dia";
-    document.getElementById('btn-clear-filter').style.display = 'none';
-    loadProducts();
-};
 
 document.addEventListener('DOMContentLoaded', () => {
     loadCategories();

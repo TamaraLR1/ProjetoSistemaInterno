@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categoria | Mega Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/ecommerce/index.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo"><a href="index.html"><h1>Mega Store</h1></a></div>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Buscar nesta categoria...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="icon-link"><i class="fas fa-home"></i><span>Início</span></a>
+                <a href="#" class="icon-link cart-icon"><i class="fas fa-shopping-cart"></i><span id="cart-count">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 30px;">
+        <div class="category-header" style="margin-bottom: 30px; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
+            <h2 id="category-name-display" style="font-size: 1.8rem; color: var(--text-main);">Carregando categoria...</h2>
+            <p id="product-count" style="color: var(--text-muted); font-size: 0.9rem;">Encontrando os melhores produtos de todos os vendedores...</p>
+        </div>
+
+        <div id="category-products-grid" class="products-grid">
+            </div>
+    </main>
+
+    <script src="js/ecommerce/categoria.js"></script>
+</body>
+</html>
