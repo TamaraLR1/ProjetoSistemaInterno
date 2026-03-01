@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Categorias - Admin</title>
+    <link rel="stylesheet" href="../css/categorias.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Gerenciar Categorias</h1>
+            <p>Adicione, edite ou remova as categorias do marketplace.</p>
+        </header>
+
+        <section class="form-container">
+            <h2 id="form-title">Cadastrar Nova Categoria</h2>
+            <form id="category-form">
+                <input type="hidden" id="category-id">
+                <div class="input-group">
+                    <label for="category-name">Nome da Categoria</label>
+                    <input type="text" id="category-name" placeholder="Ex: Eletrônicos, Moda, Casa..." required>
+                </div>
+                <div class="actions">
+                    <button type="submit" id="btn-submit" class="btn-save">Salvar Categoria</button>
+                    <button type="button" id="btn-cancel" class="btn-cancel" style="display: none;">Cancelar Edição</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="list-container">
+            <div class="list-header">
+                <h2>Categorias Ativas</h2>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Buscar categoria por nome...">
+                </div>
+            </div>
+            
+            <table class="category-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Slug</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="category-tbody">
+                    </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script src="../js/categorias.js"></script>
+</body>
+</html>

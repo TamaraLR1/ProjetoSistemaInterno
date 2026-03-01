@@ -28,24 +28,31 @@
     color: #333;
 }
 
+/* ATUALIZADO: Incluído o 'select' para herdar os mesmos estilos dos inputs */
 .input-group input[type="text"],
 .input-group input[type="number"],
-.input-group textarea {
+.input-group textarea,
+.input-group select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box; /* Garante que o padding não aumente a largura total */
     font-size: 16px;
+    background-color: #fff; /* Garante fundo branco para o select */
     transition: border-color 0.3s;
+    color: #333;
+    font-family: inherit;
 }
 
 .input-group textarea {
     resize: vertical; /* Permite redimensionar apenas verticalmente */
 }
 
+/* ATUALIZADO: Incluído o foco para o select */
 .input-group input:focus,
-.input-group textarea:focus {
+.input-group textarea:focus,
+.input-group select:focus {
     border-color: #001640;
     box-shadow: 0 0 0 1px #001640;
     outline: none;
@@ -88,8 +95,15 @@
 
 /* Estilo para inputs de arquivo */
 .input-group input[type="file"] {
+    width: 100%; /* Garante largura total conforme o padrão */
     border: 1px solid #ccc;
     padding: 10px;
     background-color: #f8f8f8;
     cursor: pointer;
+    box-sizing: border-box;
+}
+
+/* Opcional: Estilo para a opção desabilitada (placeholder) do select */
+select:invalid {
+    color: #757575;
 }

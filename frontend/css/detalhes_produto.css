@@ -1,6 +1,6 @@
 /* Caminho: frontend/css/detalhes_produto.css */
 
-/* Estilos para o Card de Detalhes (reutiliza o conceito de form-card) */
+/* Estilos para o Card de Detalhes */
 .details-card {
     background-color: #fff;
     padding: 30px;
@@ -16,7 +16,8 @@
     gap: 15px;
     margin-bottom: 20px;
     flex-wrap: wrap;
-    padding: 10px 0; /* Adiciona um respiro */
+    padding: 10px 0;
+    justify-content: flex-start;
 }
 
 /* Estilo para cada Imagem de Detalhe */
@@ -26,101 +27,91 @@
     object-fit: cover;
     border-radius: 4px;
     border: 1px solid #ddd;
-    transition: transform 0.3s ease; /* Efeito visual sutil */
+    transition: transform 0.3s ease;
 }
 
 .detail-image:hover {
-    transform: scale(1.02);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 /* Estilo para as Informações de Texto */
+#product-info {
+    text-align: left;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
 #product-info p {
-    font-size: 1.1em;
-    margin-bottom: 10px;
+    font-size: 1.05em;
+    margin-bottom: 12px;
     line-height: 1.6;
+    display: flex; /* Melhora o alinhamento entre label e valor */
+    align-items: baseline;
 }
 
 #product-info strong {
-    /* Garante alinhamento e largura fixa para os rótulos */
     display: inline-block;
-    width: 120px;
-    color: #001640; /* Cor escura para destaque */
+    min-width: 130px; /* Aumentado levemente para acomodar "Estoque Atual:" */
+    color: #001640;
     font-weight: 700;
 }
 
-#product-info {
-    text-align: left; /* <-- ADICIONE ESTA LINHA */
+/* Estilo específico para valores dinâmicos */
+#product-category, #product-price, #product-stock {
+    color: #333;
 }
 
-#product-info #product-description {
-    /* Estilo específico para a descrição que pode ser longa */
+/* Destaque para o preço */
+#product-price {
+    font-weight: bold;
+    color: #28a745; /* Verde para o preço */
+    font-size: 1.2em;
+}
+
+/* Estilo para a descrição */
+#product-description {
     display: block;
     margin-top: 5px;
     font-size: 1em;
-    font-weight: normal;
-    color: #444;
-    padding-left: 120px; /* Alinha o texto da descrição com o rótulo */
+    color: #555;
+    line-height: 1.6;
+    background: #fdfdfd;
+    padding: 10px;
+    border-left: 3px solid #007bff;
+    border-radius: 0 4px 4px 0;
 }
 
-/* Ajuste o rótulo da descrição para ficar no topo */
-#product-info p:has(#product-description) strong {
-    display: block;
-    margin-bottom: 5px;
-    width: auto;
-    padding-left: 0;
+/* Container de ações/botões */
+.form-actions, .details-card div[style*="text-align: right"] {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
 }
 
-/* Caminho: frontend/css/detalhes_produto.css */
-
-/* ... (Estilos existentes) ... */
-
-/* Adiciona estilo para o container de botões */
-.form-actions {
-    margin-top: 20px;
-    text-align: right;
-    display: flex; /* Para alinhar os botões */
-    justify-content: flex-end; /* Alinha à direita */
-    gap: 10px; /* Espaço entre os botões */
-}
-
-/* Estilo Base para os Botões (aplicado a .submit-btn e .secondary-btn) */
-.submit-btn, .secondary-btn {
-    padding: 10px 20px;
+/* Botões */
+.submit-btn, .secondary-btn, .delete-btn {
+    padding: 10px 22px;
     color: white;
     border: none;
-    border-radius: 8px; /* Mais arredondado para um visual moderno */
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
-    text-decoration: none; /* Para links (o "Voltar") */
-    transition: background-color 0.3s ease;
-    display: inline-block; /* Garante que o 'a' se comporte como botão */
+    font-size: 0.95em;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-block;
     text-align: center;
 }
 
-/* 1. Estilo para o botão "Editar Produto" (Azul Padrão) */
-.submit-btn {
-    background-color: #007bff; /* Azul primário */
-}
+.submit-btn { background-color: #007bff; }
+.submit-btn:hover { background-color: #0056b3; }
 
-.submit-btn:hover {
-    background-color: #0056b3;
-}
+.secondary-btn { background-color: #6c757d; }
+.secondary-btn:hover { background-color: #5a6268; }
 
-/* 2. Estilo para o botão "Voltar à Lista" (Azul Secundário) */
-.secondary-btn {
-    background-color: #6c757d; /* Cinza/Azul suave */
-}
-
-.secondary-btn:hover {
-    background-color: #5a6268;
-}
-
-/* 3. Estilo para o botão "Excluir Produto" (Vermelho) */
-.delete-btn {
-    background-color: #dc3545; /* Vermelho para ação perigosa */
-}
-
-.delete-btn:hover {
-    background-color: #c82333;
-}
+.delete-btn { background-color: #dc3545; }
+.delete-btn:hover { background-color: #c82333; }

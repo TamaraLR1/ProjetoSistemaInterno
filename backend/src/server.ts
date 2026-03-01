@@ -11,6 +11,9 @@ import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes'; // Importar rotas de produto
 
 import inventoryRoutes from './routes/inventory.routes';
+import publicRoutes from './routes/public.routes';
+import categoryRoutes from './routes/category.routes';
+
 
 dotenv.config();
 
@@ -26,6 +29,9 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser()); 
 
+
+
+
 // 1. Define o caminho absoluto para a pasta 'uploads'
 //    path.join(__dirname, '..', 'uploads') deve apontar para backend/uploads
 const UPLOADS_PATH = path.join(__dirname, '..', 'uploads');
@@ -33,9 +39,14 @@ const UPLOADS_PATH = path.join(__dirname, '..', 'uploads');
 // 2. LOG de Verificação (Para rodar no seu terminal Node.js/Nodemon)
 console.log('Caminho Absoluto de Uploads sendo usado:', UPLOADS_PATH); 
 
+
 // 3. Configuração do middleware estático
 //    O Express responde a URLs que começam com /uploads
 app.use('/uploads', express.static(UPLOADS_PATH));
+
+// Rotas Públicas (Sem autenticação)
+app.use('/api/public', publicRoutes);
+app.use('/api', categoryRoutes);
 
 app.use('/api', userRoutes);
 app.use('/api', authRoutes);

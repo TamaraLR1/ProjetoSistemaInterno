@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Elementos de exibição
     const nameTitle = document.getElementById('product-name-title');
+    const categorySpan = document.getElementById('product-category'); // NOVO
     const priceSpan = document.getElementById('product-price');
+    const stockSpan = document.getElementById('product-stock'); // NOVO
     const descriptionSpan = document.getElementById('product-description');
     const imagesContainer = document.getElementById('product-images-container');
     const editLink = document.getElementById('edit-link'); 
@@ -21,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const productID = parseInt(productId);
     nameTitle.textContent = 'Carregando detalhes...';
 
-// --- FUNÇÃO DE BUSCA E EXIBIÇÃO ---
+    // --- FUNÇÃO DE BUSCA E EXIBIÇÃO ---
     const fetchProductDetails = async () => {
         try {
             // Usa a rota GET /api/products/:id (protegida)
@@ -31,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.status === 401 || response.status === 403) {
-                // Se a rota está protegida e falhar, assume que a sessão expirou
                 alert('Sessão expirada ou não autenticado. Redirecionando para o login.');
                 window.location.href = '../../login.html';
                 return;
@@ -45,8 +46,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 1. Exibir Detalhes de Texto
             nameTitle.textContent = product.name;
+            
+            // Exibe a Categoria (usa o category_name vindo do JOIN no backend)
+            if (categorySpan) {
+                categorySpan.textContent = product.category_name || 'Sem categoria';
+            }
+
             priceSpan.textContent = `R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}`;
-    
+            
+            // Exibe o Estoque
+            if (stockSpan) {
+                stockSpan.textContent = product.stock_quantity ?? '0';
+            }
 
             descriptionSpan.textContent = product.description || 'Nenhuma descrição fornecida.';
 
@@ -68,13 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }
 
-            // 3. Mostrar links de Ação se o usuário for o dono (baseado na flag isOwner do backend)
-           
+            // 3. Mostrar links de Ação
             editLink.style.display = 'inline-block';
             editLink.href = `edicao_produto.html?id=${productID}`;
-                
             deleteBtn.style.display = 'inline-block'; 
-          
 
         } catch (error) {
             console.error('Erro ao buscar detalhes do produto:', error);
@@ -83,17 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-// --- FUNÇÃO DE EXCLUSÃO ---
+    // --- FUNÇÃO DE EXCLUSÃO ---
     const handleDelete = async () => {
         if (!confirm("Tem certeza que deseja DELETAR este produto? Esta ação não pode ser desfeita e removerá todas as imagens associadas.")) {
-            return; // Sai se o usuário cancelar
+            return; 
         }
         
         deleteBtn.disabled = true;
         deleteBtn.textContent = 'Excluindo...';
 
         try {
-            // Chama a rota DELETE protegida
             const response = await fetch(`http://localhost:5000/api/products/${productID}`, {
                 method: 'DELETE',
                 credentials: 'include',
@@ -101,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 alert('Produto excluído com sucesso!');
-                // Redireciona para a lista após a exclusão
                 window.location.href = 'listagem_produtos.html';
             } else if (response.status === 403) {
                 alert('Acesso negado: Você não tem permissão para excluir este produto.');
@@ -115,18 +121,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Erro na requisição de exclusão:', error);
-            alert('Erro de conexão com o servidor. Verifique o console.');
+            alert('Erro de conexão com o servidor.');
         } finally {
             deleteBtn.disabled = false;
             deleteBtn.textContent = 'Excluir Produto';
         }
     };
 
-
     // --- INICIALIZAÇÃO ---
     fetchProductDetails();
     
-    // Adiciona o listener de exclusão apenas se o botão existir no HTML
     if (deleteBtn) {
         deleteBtn.addEventListener('click', handleDelete);
     }

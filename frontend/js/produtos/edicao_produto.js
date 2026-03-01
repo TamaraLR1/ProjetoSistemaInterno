@@ -8,15 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('product-edit-form');
     const nameInput = document.getElementById('product-name');
     const descriptionInput = document.getElementById('product-description');
+    const categorySelect = document.getElementById('product-category'); // NOVO: Seleção da categoria
     const priceInput = document.getElementById('product-price');
     const imagesInput = document.getElementById('product-images'); 
     
-    // Elemento para exibir as imagens atuais
     const currentImagesContainer = document.getElementById('current-images-container'); 
-    
     const statusMessage = document.getElementById('status-message');
     const titleElement = document.getElementById('edit-page-title');
-    
     const placeholderPath = '../../assets/placeholder.png'; 
 
     let productID = null; 
@@ -25,14 +23,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!productId || isNaN(parseInt(productId))) {
         statusMessage.textContent = 'Erro: ID do produto inválido na URL.';
         statusMessage.className = 'message-box error';
+        statusMessage.style.display = 'block';
         return;
     }
     productID = parseInt(productId);
     if (titleElement) titleElement.textContent = `Editando Produto (ID: ${productID})`;
     if (form) form.parentElement.style.display = 'block'; 
+
+    // ===============================================
+    // 3. FUNÇÃO PARA CARREGAR CATEGORIAS (NOVA)
+    // ===============================================
+    const fetchCategories = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/categories');
+            if (!response.ok) throw new Error('Falha ao buscar categorias.');
+            
+            const categories = await response.json();
+            
+            if (categorySelect) {
+                categorySelect.innerHTML = '<option value="" disabled>Selecione uma categoria...</option>';
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.name;
+                    categorySelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar categorias:', error);
+        }
+    };
     
     // ===============================================
-    // 3. FUNÇÃO PARA CARREGAR DETALHES
+    // 4. FUNÇÃO PARA CARREGAR DETALHES
     // ===============================================
     const fetchProductDetails = async () => {
         try {
@@ -47,9 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            if (!response.ok) {
-                throw new Error('Falha ao buscar detalhes do produto.');
-            }
+            if (!response.ok) throw new Error('Falha ao buscar detalhes do produto.');
 
             const product = await response.json();
 
@@ -58,14 +79,17 @@ document.addEventListener('DOMContentLoaded', () => {
             descriptionInput.value = product.description || '';
             priceInput.value = parseFloat(product.price).toFixed(2).replace('.', ','); 
 
+            // NOVO: Seleciona a categoria atual no select
+            if (categorySelect && product.category_id) {
+                categorySelect.value = product.category_id;
+            }
+
             // Exibir imagens atuais
             if (currentImagesContainer) {
                 currentImagesContainer.innerHTML = ''; 
-                
                 if (product.image_urls && product.image_urls.length > 0) {
                     product.image_urls.forEach(imageUrl => {
                         const imgUrl = `http://localhost:5000/uploads/${imageUrl}`;
-                        
                         const imgContainer = document.createElement('div');
                         imgContainer.className = 'current-image-item'; 
                         
@@ -91,65 +115,56 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erro ao carregar detalhes:', error);
             statusMessage.textContent = 'Erro ao carregar os dados do produto.';
             statusMessage.className = 'message-box error';
+            statusMessage.style.display = 'block';
         }
     };
     
     // ===============================================
-    // 4. FUNÇÃO PARA SUBMISSÃO (handleEditSubmit)
+    // 5. FUNÇÃO PARA SUBMISSÃO (handleEditSubmit)
     // ===============================================
     const handleEditSubmit = async (event) => {
         event.preventDefault();
         
-        // Coleta dos dados
         const name = nameInput.value.trim();
         const description = descriptionInput.value || '';
+        const category_id = categorySelect.value; // NOVO: Coleta da categoria
         const priceValue = priceInput.value.replace(',', '.');
         const files = imagesInput.files; 
         
-        if (!name || !priceValue || isNaN(parseFloat(priceValue))) {
-             statusMessage.textContent = 'Nome e Preço são obrigatórios.';
+        if (!name || !priceValue || isNaN(parseFloat(priceValue)) || !category_id) {
+             statusMessage.textContent = 'Nome, Preço e Categoria são obrigatórios.';
              statusMessage.className = 'message-box error';
+             statusMessage.style.display = 'block';
              return;
         }
 
-        // --- 🌟 BLOCO DE VALIDAÇÃO DE ARQUIVOS (IGUAL AO CADASTRO) ---
+        // Validação de arquivos (mantida)
         if (files && files.length > 0) {
             const MAX_SIZE_MB = 5;
             const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-            const ALLOWED_TYPES = [
-                'image/jpeg', 
-                'image/jpg', 
-                'image/png', 
-                'image/webp', 
-                'image/jfif'
-            ];
+            const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/jfif'];
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-
-                // Validação de Tipo
                 if (!ALLOWED_TYPES.includes(file.type)) {
-                    alert(`O arquivo "${file.name}" não é permitido. Use apenas JPG, PNG, WEBP ou JFIF.`);
-                    imagesInput.value = ''; // Limpa seleção inválida
+                    alert(`O arquivo "${file.name}" não é permitido.`);
                     return;
                 }
-
-                // Validação de Tamanho
                 if (file.size > MAX_SIZE_BYTES) {
-                    alert(`O arquivo "${file.name}" excede o limite de ${MAX_SIZE_MB}MB.`);
-                    imagesInput.value = ''; // Limpa seleção inválida
+                    alert(`O arquivo "${file.name}" excede o limite de 5MB.`);
                     return;
                 }
             }
         }
-        // -------------------------------------------------------------
 
         statusMessage.textContent = 'Salvando alterações...';
         statusMessage.className = 'message-box info';
+        statusMessage.style.display = 'block';
 
         const formData = new FormData();
         formData.append('name', name);
         formData.append('description', description);
+        formData.append('category_id', category_id); // NOVO: Inclusão no FormData
         formData.append('price', parseFloat(priceValue).toFixed(2)); 
 
         if (files && files.length > 0) {
@@ -169,12 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (response.ok) {
                 alert('Produto atualizado com sucesso!');
-                statusMessage.textContent = 'Sucesso! Redirecionando...';
-                statusMessage.className = 'message-box success';
-                
-                setTimeout(() => {
-                    window.location.href = 'listagem_produtos.html';
-                }, 1500);
+                window.location.href = 'listagem_produtos.html';
             } else if (response.status === 401 || response.status === 403) {
                 alert('Sessão expirada. Redirecionando para o login.');
                 window.location.href = '../../login.html';
@@ -190,9 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 5. Inicialização
+    // 6. Inicialização Sequencial (Importante!)
     if (form) {
         form.addEventListener('submit', handleEditSubmit);
-        fetchProductDetails();
+        // Primeiro carregamos as categorias, depois os detalhes para poder selecionar o valor correto
+        fetchCategories().then(() => {
+            fetchProductDetails();
+        });
     }
 });

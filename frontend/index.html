@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Store | Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/ecommerce/index.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo">
+                <a href="index.html"><h1>Mega Store</h1></a>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="O que você está buscando?">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+
+            <div class="header-actions">
+                <a href="#" class="icon-link"><i class="fas fa-store"></i><span>Vender</span></a>
+                <a href="#" class="icon-link"><i class="fas fa-user"></i><span>Login</span></a>
+                <a href="#" class="icon-link cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="categories-section">
+            <h2 class="section-title">Categorias</h2>
+            <div class="categories-container">
+                <button id="prev-cat" class="btn-nav prev"><i class="fas fa-chevron-left"></i></button>
+                <button id="next-cat" class="btn-nav next"><i class="fas fa-chevron-right"></i></button>
+                
+                <div class="categories-wrapper" id="categories-wrapper">
+                    <div id="categories-cards-grid" class="categories-grid">
+                        </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section class="products-section">
+            <div class="section-header">
+                <h2 id="vitrine-title" class="section-title">Ofertas do Dia</h2>
+                <button id="btn-clear-filter" class="btn-clear" style="display: none;" onclick="clearFilter()">
+                    <i class="fas fa-times"></i> Ver tudo
+                </button>
+            </div>
+            <div id="ecommerce-products-grid" class="products-grid">
+                </div>
+        </section>
+    </main>
+
+    <script src="js/ecommerce/index.js"></script>
+</body>
+</html>

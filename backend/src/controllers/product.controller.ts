@@ -21,9 +21,10 @@ const cleanupFiles = (files?: Express.Multer.File[]) => {
     }
 };
 
-// 1. Criar Produto com Estoque Inicial
+// 1. Criar Produto com Estoque Inicial e Categoria
 export const createProduct = async (req: AuthRequest, res: Response) => {
-    const { name, description, price, stock_quantity } = req.body;
+    // Adicionado category_id na desestruturação do body
+    const { name, description, price, stock_quantity, category_id } = req.body;
     const userId = req.userId; 
     const files = req.files as Express.Multer.File[] | undefined;
 
@@ -41,10 +42,10 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
     try {
         await connection.beginTransaction();
 
-        // Insere o produto com a nova coluna stock_quantity
+        // Query atualizada para incluir a coluna category_id
         const [result]: any = await connection.execute(
-            'INSERT INTO products (name, description, price, user_id, stock_quantity) VALUES (?, ?, ?, ?, ?)',
-            [name, description, price, userId, stock_quantity || 0]
+            'INSERT INTO products (name, description, price, user_id, stock_quantity, category_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [name, description, price, userId, stock_quantity || 0, category_id || null]
         );
 
         const newProductId = result.insertId;
@@ -80,16 +81,19 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// 2. Listar Produtos (Incluindo saldo de estoque)
+// 2. Listar Produtos (Incluindo categoria e saldo de estoque)
 export const listProducts = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
     const searchTerm = req.query.q as string || ''; 
 
     try {
+        // Query atualizada com JOIN para trazer o nome da categoria também
         const query = `
-            SELECT p.id, p.name, p.description, p.price, p.stock_quantity, p.user_id,
-                    GROUP_CONCAT(pi.image_url) AS all_images
+            SELECT p.id, p.name, p.description, p.price, p.stock_quantity, p.user_id, p.category_id,
+                   c.name as category_name,
+                   GROUP_CONCAT(pi.image_url) AS all_images
             FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
             LEFT JOIN product_images pi ON p.id = pi.product_id
             WHERE p.user_id = ? 
             AND (p.name LIKE ? OR p.description LIKE ?)
@@ -116,7 +120,7 @@ export const listProducts = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// 3. Detalhes do Produto (Incluindo saldo de estoque)
+// 3. Detalhes do Produto (Incluindo categoria)
 export const getProductDetails = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.userId;
@@ -127,10 +131,15 @@ export const getProductDetails = async (req: AuthRequest, res: Response) => {
     }
     
     try {
-        const [rows]: any = await pool.execute(
-            `SELECT p.* FROM products p WHERE p.id = ? AND p.user_id = ?`,
-            [productID, userId]
-        );
+        // ALTERAÇÃO AQUI: Adicionado o JOIN com a tabela categories
+        const query = `
+            SELECT p.*, c.name as category_name 
+            FROM products p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            WHERE p.id = ? AND p.user_id = ?
+        `;
+
+        const [rows]: any = await pool.execute(query, [productID, userId]);
 
         if (rows.length === 0) {
             return res.status(404).json({ 
@@ -154,10 +163,11 @@ export const getProductDetails = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// 4. Atualizar Produto (Mantém o stock_quantity atual)
+// 4. Atualizar Produto (Permite editar a categoria)
 export const updateProductWithImages = async (req: AuthRequest, res: Response) => {
     const { id } = req.params; 
-    const { name, description, price } = req.body; 
+    // Adicionado category_id na desestruturação do body
+    const { name, description, price, category_id } = req.body; 
     const userId = req.userId;
     const productID = parseInt(id);
     const newFiles = req.files as Express.Multer.File[] | undefined; 
@@ -181,9 +191,10 @@ export const updateProductWithImages = async (req: AuthRequest, res: Response) =
             return res.status(403).json({ message: 'Permissão negada.' });
         }
 
+        // Query de UPDATE atualizada para incluir a categoria
         await connection.execute(
-            'UPDATE products SET name = ?, description = ?, price = ? WHERE id = ? AND user_id = ?',
-            [name, description, price, productID, userId]
+            'UPDATE products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ? AND user_id = ?',
+            [name, description, price, category_id || null, productID, userId]
         );
 
         if (newFiles && newFiles.length > 0) {
@@ -237,8 +248,6 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
             if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
         });
 
-        // O DELETE CASCADE no banco cuidará das imagens e movimentações, 
-        // mas as imagens físicas removemos manualmente acima.
         await connection.execute('DELETE FROM products WHERE id = ? AND user_id = ?', [productID, userId]);
 
         await connection.commit();

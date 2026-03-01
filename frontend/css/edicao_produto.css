@@ -50,12 +50,41 @@
     font-size: 0.9em;
 }
 
+/* --- ESTILOS PARA MENSAGENS DE STATUS (Sucesso/Erro) --- */
+.message-box {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.message-box.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.message-box.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message-box.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
 /* Estilos adicionais para o input de arquivo */
 input[type="file"] {
+    width: 100%;
     border: 1px solid #ccc;
     padding: 8px;
     border-radius: 4px;
     background-color: #f0f0f0;
+    box-sizing: border-box;
 }
 
 input[type="file"]:hover {
@@ -75,4 +104,10 @@ input[type="file"]::file-selector-button {
 
 input[type="file"]::file-selector-button:hover {
     background-color: #0056b3;
+}
+
+/* Garante que o select de categoria (herdado do cadastro_produtos.css) 
+   mantenha margens coerentes com o grid de imagens abaixo dele */
+#product-category {
+    margin-bottom: 5px;
 }

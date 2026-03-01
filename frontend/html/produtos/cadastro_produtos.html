@@ -61,6 +61,13 @@
                         <textarea id="product-description" name="description" rows="4" required></textarea>
                     </div>
 
+                    <div class="input-group">
+                        <label for="product-category">Categoria *</label>
+                        <select id="product-category" name="category_id" required>
+                            <option value="" disabled selected>Selecione uma categoria...</option>
+                            </select>
+                    </div>
+
                     <div style="display: flex; gap: 20px;">
                         <div class="input-group" style="flex: 1;">
                             <label for="product-price">Preço (R$)</label>
@@ -79,8 +86,10 @@
                         <small>Você pode selecionar múltiplas imagens.</small>
                     </div>
 
-                    <button type="submit" class="submit-btn">Cadastrar Produto</button>
-                    <button type="button" class="cancel-btn" onclick="window.location.href='../home.html'">Cancelar</button>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Cadastrar Produto</button>
+                        <button type="button" class="cancel-btn" onclick="window.location.href='../home.html'">Cancelar</button>
+                    </div>
                 </form>
             </section>
         </main>

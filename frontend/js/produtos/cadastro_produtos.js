@@ -4,8 +4,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('product-name');
     const descriptionInput = document.getElementById('product-description');
     const priceInput = document.getElementById('product-price');
-    const stockInput = document.getElementById('product-stock'); // NOVO: Seleção do campo de estoque
-    const imagesInput = document.getElementById('product-images'); 
+    const stockInput = document.getElementById('product-stock');
+    const imagesInput = document.getElementById('product-images');
+    const categorySelect = document.getElementById('product-category'); // NOVO: Seleção do campo categoria
+
+    // --- FUNÇÃO PARA CARREGAR CATEGORIAS NO SELECT ---
+    async function carregarCategorias() {
+        if (!categorySelect) return;
+
+        try {
+            const response = await fetch('http://localhost:5000/api/categories');
+            if (!response.ok) throw new Error('Falha ao buscar categorias');
+            
+            const categorias = await response.json();
+
+            categorias.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                categorySelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Erro ao carregar categorias:", error);
+        }
+    }
+
+    // Executa a carga de categorias ao abrir a página
+    carregarCategorias();
 
     if (form) {
         form.addEventListener('submit', async (event) => {
@@ -15,11 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = nameInput.value.trim();
             const description = descriptionInput ? descriptionInput.value.trim() : '';
             const priceRaw = priceInput.value.replace(',', '.');
-            const stockRaw = stockInput ? stockInput.value.trim() : '0'; // NOVO: Coleta do estoque
-            
+            const stockRaw = stockInput ? stockInput.value.trim() : '0';
+            const category_id = categorySelect ? categorySelect.value : ''; // NOVO: Coleta da categoria
+
             // Validação simples de preenchimento
             if (!name || !priceRaw) {
                 alert("Por favor, preencha o nome e o preço do produto.");
+                return;
+            }
+
+            // NOVO: Validação de Categoria Obrigatória
+            if (!category_id) {
+                alert("Por favor, selecione uma categoria para o produto.");
                 return;
             }
 
@@ -29,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // NOVO: Validação do Estoque
             const stock_quantity = parseInt(stockRaw);
             if (isNaN(stock_quantity) || stock_quantity < 0) {
                 alert("Por favor, insira uma quantidade de estoque válida (mínimo 0).");
@@ -74,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('description', description);
             formData.append('price', price.toFixed(2));
             formData.append('stock_quantity', stock_quantity); 
+            formData.append('category_id', category_id); // NOVO: Adicionado ao FormData
 
             for (let i = 0; i < files.length; i++) {
                 formData.append('product-images', files[i]);
@@ -84,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch('http://localhost:5000/api/products', {
                     method: 'POST',
                     body: formData, 
-                    credentials: 'include',
+                    credentials: 'include', // Mantém o envio de cookies/sessão
                 });
 
                 const data = await response.json().catch(() => ({ message: 'Erro ao processar resposta do servidor.' })); 
@@ -94,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     form.reset(); 
                 } else if (response.status === 401 || response.status === 403) {
                     alert('Sessão expirada. Por favor, faça login novamente.');
-                    window.location.href = 'login.html';
+                    window.location.href = '../login.html'; // Ajustado caminho para login
                 } else {
                     console.error('Erro retornado pelo servidor:', data);
                     alert(`Erro ao cadastrar: ${data.message || 'Ocorreu um problema no servidor.'}`);

@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { getPublicProducts, getProductsByCategory } from '../controllers/public.controller';
+
+const router = Router();
+
+// Rota principal da vitrine
+router.get('/products', getPublicProducts);
+
+// Rota para filtros de categoria
+router.get('/products/category/:category', getProductsByCategory);
+
+export default router;
