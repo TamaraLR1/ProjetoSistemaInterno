@@ -12,11 +12,11 @@
     <header class="main-header">
         <div class="container header-container">
             <div class="logo"><a href="index.html"><h1>Mega Store</h1></a></div>
-            <div class="header-actions">
-                <a href="index.html" class="icon-link">
-                    <i class="fas fa-arrow-left"></i><span>Voltar</span>
-                </a>
-                <a href="#" class="icon-link cart-icon">
+            
+            <div class="header-actions" id="auth-section">
+                <a href="index.html" class="icon-link"><i class="fas fa-arrow-left"></i><span>Voltar</span></a>
+                <a href="login.html" class="icon-link"><i class="fas fa-user"></i><span>Login</span></a>
+                <a href="carrinho.html" class="icon-link cart-icon">
                     <i class="fas fa-shopping-cart"></i>
                     <span id="cart-count">0</span>
                 </a>
@@ -24,15 +24,67 @@
         </div>
     </header>
 
+    <template id="user-logged-template">
+        <div class="user-menu-wrapper">
+            <a href="index.html" class="icon-link"><i class="fas fa-arrow-left"></i><span>Voltar</span></a>
+            
+            <a href="./html/home.html" id="seller-panel-link" class="icon-link" style="display: none;">
+                <i class="fas fa-chart-line"></i><span>Painel</span>
+            </a>
+
+            <div class="user-dropdown-container">
+                <div class="user-profile-trigger" id="user-trigger">
+                    <img id="user-avatar" src="" alt="Avatar" class="header-avatar">
+                    <span id="user-name">Usuário</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                
+                <div class="user-dropdown-menu" id="user-dropdown">
+                    <a href="perfil.html"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+                    <a href="pedidos.html"><i class="fas fa-box"></i> Meus Pedidos</a>
+                    <hr>
+                    <button id="btn-logout" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                </div>
+            </div>
+
+            <a href="carrinho.html" class="icon-link cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count-logged">0</span>
+            </a>
+        </div>
+    </template>
+
     <main class="container">
         <div id="product-details-content" class="product-details-wrapper">
-            <div class="loading-state">
-                <i class="fas fa-spinner fa-spin"></i>
-                <p>Carregando informações do produto...</p>
+            <div class="image-section">
+                <img src="https://via.placeholder.com/400?text=Carregando..." id="product-img" class="product-image-main">
+            </div>
+
+            <div class="product-info-box">
+                <span class="seller-badge">
+                    <i class="fas fa-store"></i> Vendido por: <strong id="product-seller">...</strong>
+                </span>
+
+                <h1 id="product-name">Carregando...</h1>
+                <p class="description-text" id="product-description">Aguarde um momento...</p>
+                <div class="price-tag" id="product-price">R$ 0,00</div>
+
+                <div class="action-buttons">
+                    <button class="btn-action btn-cart" id="btn-add-to-cart">
+                        <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+                    </button>
+                    <button class="btn-action btn-buy" id="btn-buy-now">
+                        <i class="fas fa-bolt"></i> Comprar Agora
+                    </button>
+                </div>
             </div>
         </div>
     </main>
 
+    <script src="js/common/auth.js"></script>
+    
     <script src="js/ecommerce/produto.js"></script>
 </body>
 </html>

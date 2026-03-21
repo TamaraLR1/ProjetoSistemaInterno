@@ -1,46 +1,42 @@
-// login.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Seleciona os elementos do formulário de login
     const loginForm = document.getElementById('login-form');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const messageDiv = document.getElementById('message'); 
+    const messageDiv = document.getElementById('message');
 
     if (loginForm) {
         loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); 
-
-            const email = emailInput.value;
-            const password = passwordInput.value;
-
-            messageDiv.textContent = '';
-            messageDiv.className = '';
+            event.preventDefault(); // Impede os dados de irem para a URL
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
             try {
-                // Envia os dados para a API de login no backend
                 const response = await fetch('http://localhost:5000/api/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password }),
-                    credentials: 'include', // Inclui o cookie na requisição
+                    credentials: 'include', // Importante para salvar o cookie de sessão
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    // O cookie HttpOnly foi definido pelo backend
-                    window.location.href = './html/home.html';
+                    // Captura para onde o usuário deve voltar (ex: página do produto)
+                    const params = new URLSearchParams(window.location.search);
+                    const redirectTo = params.get('redirect');
+
+                    if (redirectTo) {
+                        window.location.replace(decodeURIComponent(redirectTo));
+                    } else {
+                        // Redirecionamento padrão por cargo
+                        window.location.href = data.user?.role === 'seller' ? './html/home.html' : 'index.html';
+                    }
                 } else {
-                    messageDiv.textContent = data.message || 'Erro ao fazer login. Verifique suas credenciais.';
-                    messageDiv.className = 'error';
+                    messageDiv.textContent = data.message || 'E-mail ou senha incorretos.';
+                    messageDiv.className = 'error-message';
                 }
             } catch (error) {
-                console.error('Erro na requisição de login:', error);
-                messageDiv.textContent = 'Erro ao conectar com o servidor. Tente novamente.';
-                messageDiv.className = 'error';
+                console.error('Erro no login:', error);
+                messageDiv.textContent = 'Erro ao conectar com o servidor.';
             }
         });
     }

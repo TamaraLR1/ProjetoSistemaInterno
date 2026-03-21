@@ -13,22 +13,21 @@ import productRoutes from './routes/product.routes'; // Importar rotas de produt
 import inventoryRoutes from './routes/inventory.routes';
 import publicRoutes from './routes/public.routes';
 import categoryRoutes from './routes/category.routes';
-
+import cartRoutes from './routes/cart.routes';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.use(express.json());
+app.use(cookieParser()); 
+
 // Configuração do CORS
 app.use(cors({
     origin: 'http://localhost:8000', 
     credentials: true, 
 }));
-
-app.use(express.json());
-app.use(cookieParser()); 
-
 
 
 
@@ -52,6 +51,7 @@ app.use('/api', userRoutes);
 app.use('/api', authRoutes);
 app.use('/api', productRoutes); // Incluir rotas de produto
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api', cartRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);

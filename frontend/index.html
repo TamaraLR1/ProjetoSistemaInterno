@@ -15,13 +15,47 @@
                 <input type="text" id="search-input" placeholder="O que você está buscando?">
                 <button id="btn-search"><i class="fas fa-search"></i></button>
             </div>
-            <div class="header-actions">
+
+            <div class="header-actions" id="auth-section">
                 <a href="#" class="icon-link"><i class="fas fa-store"></i><span>Vender</span></a>
-                <a href="#" class="icon-link"><i class="fas fa-user"></i><span>Login</span></a>
-                <a href="#" class="icon-link cart-icon"><i class="fas fa-shopping-cart"></i><span id="cart-count">0</span></a>
+                <a href="login.html" class="icon-link"><i class="fas fa-user"></i><span>Login</span></a>
+                <a href="carrinho.html" class="icon-link cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count">0</span>
+                </a>
             </div>
         </div>
     </header>
+
+    <template id="user-logged-template">
+        <div class="user-menu-wrapper">
+            <a href="./html/home.html" id="seller-panel-link" class="icon-link" style="display: none;">
+                <i class="fas fa-chart-line"></i><span>Painel</span>
+            </a>
+            
+            <div class="user-dropdown-container">
+                <div class="user-profile-trigger" id="user-trigger">
+                    <img id="user-avatar" src="" alt="Avatar" class="header-avatar">
+                    <span id="user-name">Usuário</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                
+                <div class="user-dropdown-menu" id="user-dropdown">
+                    <a href="perfil.html"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+                    <a href="pedidos.html"><i class="fas fa-box"></i> Meus Pedidos</a>
+                    <hr>
+                    <button id="btn-logout" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                </div>
+            </div>
+
+            <a href="carrinho.html" class="icon-link cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count-logged">0</span>
+            </a>
+        </div>
+    </template>
 
     <main class="container">
         <section class="categories-section">
@@ -43,6 +77,7 @@
         </section>
     </main>
 
-    <script src="js/ecommerce/index.js"></script>
+    <script src="js/common/auth.js"></script>
+    <script src="js/ecommerce/index.js"></script> 
 </body>
 </html>

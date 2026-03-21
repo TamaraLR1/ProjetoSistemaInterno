@@ -1,0 +1,4 @@
+Pasta routes/
+product.routes.ts: Contém rotas como POST /, PUT /:id, DELETE /:id. Todas protegidas por token.
+
+public.routes.ts: Contém GET /products, GET /products/:id. Todas abertas (sem middleware de login).

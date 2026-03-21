@@ -6,3 +6,8 @@ Controller (user.controller.ts)	Lógica de Negócios: Receber o ID do usuário (já 
 
 
 Dashboard Estatístico: Criar uma área na Home que mostre: "Você possui X produtos cadastrados que totalizam R$ Y".
+
+
+Para se cadastrar como vendedor é necessário estar logado como usuário
+
+

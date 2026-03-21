@@ -55,3 +55,13 @@ CREATE TABLE inventory_movements (
 );
 
 -- O comando 'ON DELETE CASCADE' garante que ao deletar um produto, todas as suas imagens relacionadas sejam deletadas.product_images
+
+CREATE TABLE cart_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);

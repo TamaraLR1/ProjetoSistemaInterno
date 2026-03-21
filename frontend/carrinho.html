@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Carrinho | Mega Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/ecommerce/index.css">
+    <style>
+        .cart-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; gap: 20px; }
+        .cart-item img { width: 80px; height: 80px; object-fit: contain; }
+        .cart-item-info { flex: 1; }
+        .cart-total { margin-top: 20px; text-align: right; font-size: 1.5rem; font-weight: bold; }
+        .btn-checkout { background: var(--primary); color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; float: right; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo"><a href="index.html"><h1>Mega Store</h1></a></div>
+            <a href="index.html">Continuar Comprando</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Seu Carrinho</h2>
+        <div id="cart-list">
+            </div>
+        <div id="cart-summary" style="display: none;">
+            <div class="cart-total" id="cart-total-value">Total: R$ 0,00</div>
+            <button class="btn-checkout" onclick="window.location.href='checkout.html'">Finalizar Compra</button>
+        </div>
+    </main>
+
+    <script src="js/ecommerce/carrinho-page.js"></script>
+</body>
+</html>

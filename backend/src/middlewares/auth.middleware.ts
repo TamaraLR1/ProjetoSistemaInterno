@@ -13,7 +13,7 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction) => 
     const token = req.cookies.authToken; 
 
     if (!token) {
-        return res.status(401).json({ message: 'Acesso negado. Token não encontrado.' });
+        return res.status(401).json({ message: 'Acesso negado. Token não encontrado ou Faça login para continuar' });
     }
 
     try {

@@ -10,48 +10,92 @@ async function initProductDetails() {
         return;
     }
 
+    // 1. Tenta atualizar o contador. 
+    // Se der 401, ele apenas fica em '0', sem redirecionar (silencioso).
+    updateCartCounter();
+
     try {
-        // Chamada para buscar UM único produto (ajustaremos a rota no back abaixo)
+        // 2. Busca o produto (Rota Pública - Qualquer um vê)
         const response = await fetch(`${API_URL}/public/products/${productId}`);
+        if (!response.ok) throw new Error('Produto não encontrado');
         const product = await response.json();
 
-        const container = document.getElementById('product-details-content');
-        
-        const imagePath = product.main_image 
-            ? (product.main_image.startsWith('http') ? product.main_image : `${IMG_BASE_URL}/${product.main_image}`)
-            : 'https://via.placeholder.com/500';
+        // 3. Renderiza a página
+        renderProduct(product);
 
-        container.innerHTML = `
-            <div class="image-section">
-                <img src="${imagePath}" class="product-image-main" alt="${product.name}">
-            </div>
-            <div class="product-info-box">
-                <span class="seller-badge"><i class="fas fa-store"></i> Vendido por: <strong>${product.seller_name}</strong></span>
-                <h1>${product.name}</h1>
-                <p class="description-text">${product.description || 'Este produto não possui descrição detalhada.'}</p>
-                <div class="price-tag">R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}</div>
-                <p style="margin-bottom: 20px; color: ${product.stock_quantity > 0 ? '#10b981' : '#ef4444'}">
-                    <i class="fas fa-box"></i> Estoque disponível: ${product.stock_quantity} unidades
-                </p>
-                <div class="action-buttons">
-                    <button class="btn-action btn-cart" onclick="addToCart(${product.id})">Adicionar ao Carrinho</button>
-                    <button class="btn-action btn-buy" onclick="checkout(${product.id})">Comprar Agora</button>
-                </div>
-            </div>
-        `;
     } catch (err) {
-        console.error(err);
-        document.getElementById('product-details-content').innerHTML = "Erro ao carregar o produto.";
+        console.error("Erro ao carregar detalhes:", err);
     }
 }
 
-function addToCart(id) {
-    alert("Produto adicionado ao carrinho!");
-    // Aqui você implementaria a lógica do LocalStorage ou API de carrinho
+function renderProduct(product) {
+    document.getElementById('product-name').innerText = product.name;
+    document.getElementById('product-description').innerText = product.description || '';
+    document.getElementById('product-seller').innerText = product.seller_name || 'Loja';
+    document.getElementById('product-price').innerText = `R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}`;
+    
+    const img = document.getElementById('product-img');
+    if (img) {
+        img.src = product.main_image 
+            ? (product.main_image.startsWith('http') ? product.main_image : `${IMG_BASE_URL}/${product.main_image}`)
+            : 'https://via.placeholder.com/400';
+    }
+
+    // Define as ações dos botões
+    document.getElementById('btn-add-to-cart').onclick = () => handleCartAction(product.id, 'add_cart');
+    document.getElementById('btn-buy-now').onclick = () => handleCartAction(product.id, 'buy_now');
 }
 
-function checkout(id) {
-    window.location.href = `checkout.html?product_id=${id}`;
+async function handleCartAction(productId, type) {
+    try {
+        const response = await fetch(`${API_URL}/cart/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, quantity: 1 }),
+            credentials: 'include' 
+        });
+
+        // --- AQUI ESTÁ O QUE VOCÊ PEDIU ---
+        // Se o servidor responder 401, é porque o usuário clicou mas não está logado.
+        if (response.status === 401) {
+            console.log("Usuário não logado. Redirecionando agora...");
+            
+            // Opcional: Salvar no localStorage se você quiser que adicione sozinho após o login
+            // localStorage.setItem('pending_action', JSON.stringify({ type, productId }));
+
+            const currentUrl = encodeURIComponent(window.location.href);
+            window.location.href = `login.html?redirect=${currentUrl}`;
+            return;
+        }
+
+        if (response.ok) {
+            if (type === 'buy_now') {
+                window.location.href = 'carrinho.html';
+            } else {
+                alert("Produto adicionado ao seu carrinho!");
+                updateCartCounter();
+            }
+        }
+    } catch (err) {
+        console.error("Erro ao processar clique:", err);
+    }
+}
+
+async function updateCartCounter() {
+    try {
+        const res = await fetch(`${API_URL}/cart/count`, { credentials: 'include' });
+        const el = document.getElementById('cart-count');
+        if (el) {
+            if (res.ok) {
+                const data = await res.json();
+                el.innerText = data.count || 0;
+            } else {
+                el.innerText = '0'; // Se não estiver logado, contador é 0
+            }
+        }
+    } catch (e) {
+        console.error("Erro silencioso no contador.");
+    }
 }
 
 document.addEventListener('DOMContentLoaded', initProductDetails);
