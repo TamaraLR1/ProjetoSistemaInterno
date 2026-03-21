@@ -42,25 +42,41 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
 
 export const getCartCount = async (req: AuthRequest, res: Response) => {
     try {
-        // Verifica se o middleware injetou o usuário
         const userId = req.userId; 
         
         if (!userId) {
-            return res.status(401).json({ count: 0, message: "Usuário não identificado" });
+            return res.status(401).json({ count: 0, user: null });
         }
 
-        const [rows]: any = await pool.execute(
-            'SELECT SUM(quantity) as total FROM cart_items WHERE user_id = ?',
+        // 1. Busca total do carrinho
+        const [cartRows]: any = await pool.execute(
+            'SELECT IFNULL(SUM(quantity), 0) as total FROM cart_items WHERE user_id = ?',
             [userId]
         );
 
-        // Retorna 0 se o resultado for null (carrinho vazio)
-        const totalCount = rows[0]?.total ? parseInt(rows[0].total) : 0;
-        
-        return res.json({ count: totalCount });
+        // 2. Busca Usuário adaptado à sua tabela
+        // Usamos CONCAT para unir firstName e lastName como 'name'
+        // Usamos avatar_url AS avatar para o frontend reconhecer
+        const [userRows]: any = await pool.execute(
+            `SELECT 
+                id, 
+                CONCAT(firstName, ' ', lastName) AS name, 
+                avatar_url AS avatar,
+                'client' AS role 
+             FROM users WHERE id = ?`,
+            [userId]
+        );
+
+        const totalCount = cartRows[0].total;
+        const userData = userRows.length > 0 ? userRows[0] : null;
+
+        return res.json({ 
+            count: totalCount,
+            user: userData 
+        });
+
     } catch (error: any) {
-        console.error('ERRO NO COUNT DO CARRINHO:', error.message);
-        // Retorna 500 mas com uma mensagem para você debugar no terminal
-        return res.status(500).json({ count: 0, error: error.message });
+        console.error('ERRO NO SQL:', error.message);
+        return res.status(500).json({ error: "Erro interno no servidor" });
     }
 };

@@ -2,7 +2,7 @@ const API_URL = 'http://localhost:5000/api';
 const IMG_BASE_URL = 'http://localhost:5000/uploads';
 
 /**
- * Carrega as categorias no carrossel superior
+ * Carrega as categorias no grid 10x2
  */
 async function loadCategories() {
     try {
@@ -12,11 +12,14 @@ async function loadCategories() {
 
         if (!grid) return;
 
+        // Gera o HTML compatível com o CSS de círculos
         grid.innerHTML = categories.map(cat => `
             <div class="category-card" 
                  onclick="window.location.href='categoria.html?id=${cat.id}&name=${encodeURIComponent(cat.name)}'" 
                  title="${cat.name}">
-                <div class="category-icon"><i class="fas fa-tag"></i></div>
+                <div class="category-icon">
+                    <i class="${cat.icon || 'fas fa-tag'}"></i>
+                </div>
                 <h3>${cat.name}</h3>
             </div>
         `).join('');
@@ -28,7 +31,7 @@ async function loadCategories() {
 }
 
 /**
- * Carrega os produtos da vitrine principal
+ * Carrega os produtos da vitrine
  */
 async function loadProducts() {
     const grid = document.getElementById('ecommerce-products-grid');
@@ -43,17 +46,13 @@ async function loadProducts() {
             return;
         }
 
-        // ALTERAÇÃO REALIZADA: 
-        // 1. Mantive o onclick no card
-        // 2. Removi o botão "Ver Detalhes" indesejado
-        // 3. Organizei a estrutura da imagem para o CSS controlar
         grid.innerHTML = products.map(p => {
             const imagePath = p.main_image 
                 ? (p.main_image.startsWith('http') ? p.main_image : `${IMG_BASE_URL}/${p.main_image}`)
                 : 'https://via.placeholder.com/200?text=Sem+Imagem';
 
             return `
-                <div class="product-card" onclick="goToProductDetail(${p.id})" style="cursor: pointer;">
+                <div class="product-card" onclick="goToProductDetail(${p.id})">
                     <div class="product-img-container">
                         <img src="${imagePath}" alt="${p.name}">
                     </div>
@@ -72,20 +71,14 @@ async function loadProducts() {
 
     } catch (e) {
         console.error("Erro ao carregar produtos:", e);
-        grid.innerHTML = '<p>Erro ao carregar a vitrine. Tente novamente mais tarde.</p>';
+        grid.innerHTML = '<p>Erro ao carregar a vitrine.</p>';
     }
 }
 
-/**
- * Função de redirecionamento para detalhes
- */
 window.goToProductDetail = (id) => {
     window.location.href = `produto.html?id=${id}`;
 };
 
-/**
- * Configuração lógica do carrossel de categorias
- */
 function setupCarousel() {
     const wrapper = document.getElementById('categories-wrapper');
     const btnNext = document.getElementById('next-cat');
@@ -93,8 +86,8 @@ function setupCarousel() {
 
     if (!wrapper || !btnNext || !btnPrev) return;
 
-    btnNext.onclick = () => wrapper.scrollLeft += wrapper.clientWidth;
-    btnPrev.onclick = () => wrapper.scrollLeft -= wrapper.clientWidth;
+    btnNext.onclick = () => wrapper.scrollLeft += wrapper.clientWidth * 0.8;
+    btnPrev.onclick = () => wrapper.scrollLeft -= wrapper.clientWidth * 0.8;
 
     wrapper.onscroll = () => {
         btnPrev.style.display = wrapper.scrollLeft > 20 ? 'flex' : 'none';
@@ -103,7 +96,6 @@ function setupCarousel() {
     };
 }
 
-// Inicialização ao carregar o DOM
 document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     loadProducts();

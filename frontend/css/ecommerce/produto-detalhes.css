@@ -22,10 +22,11 @@
 }
 
 .product-image-main {
-    max-width: 100%;
-    max-height: 500px;
+    width: 100% !important;
+    max-width: 450px !important;
+    height: auto !important;
     object-fit: contain;
-    transition: transform 0.3s ease;
+    border-radius: 8px;
 }
 
 .product-image-main:hover {
@@ -107,6 +108,7 @@
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
 }
+
 
 /* Responsividade para Celulares */
 @media (max-width: 768px) {
