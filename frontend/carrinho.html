@@ -2,35 +2,65 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Carrinho | Mega Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/ecommerce/index.css">
-    <style>
-        .cart-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; gap: 20px; }
-        .cart-item img { width: 80px; height: 80px; object-fit: contain; }
-        .cart-item-info { flex: 1; }
-        .cart-total { margin-top: 20px; text-align: right; font-size: 1.5rem; font-weight: bold; }
-        .btn-checkout { background: var(--primary); color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; float: right; margin-top: 20px; }
-    </style>
+    <link rel="stylesheet" href="css/ecommerce/carrinho.css">
 </head>
 <body>
     <header class="main-header">
         <div class="container header-container">
-            <div class="logo"><a href="index.html"><h1>Mega Store</h1></a></div>
-            <a href="index.html">Continuar Comprando</a>
+            <div class="logo">
+                <a href="index.html"><h1>Mega Store</h1></a>
+            </div>
+            <nav>
+                <a href="index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Continuar Comprando
+                </a>
+            </nav>
         </div>
     </header>
 
     <main class="container">
-        <h2>Seu Carrinho</h2>
-        <div id="cart-list">
+        <section class="cart-section">
+            <h2 class="page-title">Seu Carrinho</h2>
+            
+            <div id="cart-container">
+                <table class="cart-table" id="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Preço Unitário</th>
+                            <th>Quantidade</th>
+                            <th>Subtotal</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-items-body">
+                        </tbody>
+                </table>
+
+                <div id="cart-empty-msg" style="display: none;" class="empty-cart">
+                    <i class="fas fa-shopping-basket"></i>
+                    <p>Seu carrinho está vazio.</p>
+                    <a href="index.html" class="btn-primary">Ir para a Loja</a>
+                </div>
             </div>
-        <div id="cart-summary" style="display: none;">
-            <div class="cart-total" id="cart-total-value">Total: R$ 0,00</div>
-            <button class="btn-checkout" onclick="window.location.href='checkout.html'">Finalizar Compra</button>
-        </div>
+
+            <div id="cart-summary" class="cart-summary" style="display: none;">
+                <div class="summary-details">
+                    <span>Total da compra:</span>
+                    <strong id="cart-total-value">R$ 0,00</strong>
+                </div>
+                <button class="btn-checkout" onclick="window.location.href='checkout.html'">
+                    <i class="fas fa-check"></i> Finalizar Compra
+                </button>
+            </div>
+        </section>
     </main>
 
+    <script src="js/common/auth.js"></script>
     <script src="js/ecommerce/carrinho-page.js"></script>
 </body>
 </html>

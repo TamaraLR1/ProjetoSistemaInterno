@@ -1,0 +1,139 @@
+/* Estilo da Seção de Carrinho */
+.cart-section {
+    padding: 40px 0;
+}
+
+.page-title {
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    color: #1e293b;
+}
+
+/* Tabela de Produtos */
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.cart-table th {
+    background: #f8fafc;
+    padding: 15px;
+    text-align: left;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #64748b;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.cart-table td {
+    padding: 20px 15px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+/* Info do Produto na Tabela */
+.product-cell {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.product-cell img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.product-name {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Inputs e Botões */
+.qty-input {
+    width: 60px;
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.btn-delete {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-delete:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* Resumo do Carrinho */
+.cart-summary {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 15px;
+}
+
+.summary-details {
+    font-size: 1.2rem;
+}
+
+.summary-details strong {
+    font-size: 1.8rem;
+    color: var(--primary);
+    margin-left: 10px;
+}
+
+.btn-checkout {
+    background: var(--primary);
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.btn-checkout:hover {
+    filter: brightness(0.9);
+}
+
+/* Carrinho Vazio */
+.empty-cart {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border-radius: 12px;
+}
+
+.empty-cart i {
+    font-size: 4rem;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+}
+
+.empty-cart p {
+    font-size: 1.2rem;
+    color: #64748b;
+    margin-bottom: 20px;
+}

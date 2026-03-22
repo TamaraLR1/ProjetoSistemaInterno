@@ -59,8 +59,14 @@
     <main class="container">
         <div id="product-details-content" class="product-details-wrapper">
             <div class="image-section">
-                <img src="https://via.placeholder.com/400?text=Carregando..." id="product-img" class="product-image-main">
+                <div class="main-image-container">
+                    <img src="https://via.placeholder.com/400?text=Carregando..." id="product-img" class="product-image-main">
+                </div>
+                
+                <div id="product-thumbs" class="product-thumbs-container">
+                </div>
             </div>
+
 
             <div class="product-info-box">
                 <span class="seller-badge">
@@ -70,6 +76,27 @@
                 <h1 id="product-name">Carregando...</h1>
                 <p class="description-text" id="product-description">Aguarde um momento...</p>
                 <div class="price-tag" id="product-price">R$ 0,00</div>
+
+                <div class="purchase-options">
+                    <div class="quantity-selector">
+                        <label for="product-qty">Quantidade:</label>
+                        <div class="qty-controls">
+                            <button type="button" onclick="changeQty(-1)">-</button>
+                            <input type="number" id="product-qty" value="1" min="1" readonly>
+                            <button type="button" onclick="changeQty(1)">+</button>
+                        </div>
+                        <span class="stock-info">(<span id="stock-count">0</span> disponíveis)</span>
+                    </div>
+
+                    <div class="shipping-box">
+                        <label for="cep-input">Calcular Frete:</label>
+                        <div class="shipping-input-group">
+                            <input type="text" id="cep-input" placeholder="00000-000" maxlength="9">
+                            <button type="button" id="btn-calculate-shipping">Calcular</button>
+                        </div>
+                        <div id="shipping-result" class="shipping-result"></div>
+                    </div>
+                </div>
 
                 <div class="action-buttons">
                     <button class="btn-action btn-cart" id="btn-add-to-cart">
@@ -84,7 +111,6 @@
     </main>
 
     <script src="js/common/auth.js"></script>
-    
     <script src="js/ecommerce/produto.js"></script>
 </body>
 </html>
