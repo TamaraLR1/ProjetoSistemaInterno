@@ -97,3 +97,31 @@ a { text-decoration: none; color: inherit; }
 .btn-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 35px; height: 35px; background: #fff; border: 1px solid #e2e8f0; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 .btn-nav.prev { left: -17px; display: none; }
 .btn-nav.next { right: -17px; }
+
+/* Estilo para o Card de Produto */
+.product-card {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s ease; /* Suaviza a animação */
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Efeito de "Levantar" ao passar o mouse */
+.product-card:hover {
+    transform: translateY(-8px); /* Faz o card subir levemente */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Sombra mais profunda */
+    border-color: var(--primary); /* Destaca a borda com a cor principal */
+}
+
+/* Ajuste para a imagem dentro do card */
+.product-img-container img {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-img-container img {
+    transform: scale(1.05); /* Zoom leve na imagem ao passar o mouse */
+}

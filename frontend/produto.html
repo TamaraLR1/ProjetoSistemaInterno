@@ -11,10 +11,13 @@
 <body>
     <header class="main-header">
         <div class="container header-container">
-            <div class="logo"><a href="index.html"><h1>Mega Store</h1></a></div>
+            <div class="header-left-group">
+                <div class="logo">
+                    <a href="index.html"><h1>Mega Store</h1></a>
+                </div>
+            </div>
             
             <div class="header-actions" id="auth-section">
-                <a href="index.html" class="icon-link"><i class="fas fa-arrow-left"></i><span>Voltar</span></a>
                 <a href="login.html" class="icon-link"><i class="fas fa-user"></i><span>Login</span></a>
                 <a href="carrinho.html" class="icon-link cart-icon">
                     <i class="fas fa-shopping-cart"></i>
@@ -24,10 +27,12 @@
         </div>
     </header>
 
-    <template id="user-logged-template">
+<template id="user-logged-template">
         <div class="user-menu-wrapper">
-            <a href="index.html" class="icon-link"><i class="fas fa-arrow-left"></i><span>Voltar</span></a>
-            
+            <a href="javascript:history.back()" class="btn-back">
+                <i class="fas fa-arrow-left"></i><span>Voltar</span>
+            </a>
+
             <a href="./html/home.html" id="seller-panel-link" class="icon-link" style="display: none;">
                 <i class="fas fa-chart-line"></i><span>Painel</span>
             </a>
