@@ -19,3 +19,11 @@ git push origin main
 
 # 4. Volta para a develop para continuar trabalhando amanhã
 git checkout develop
+
+....
+
+Para rodar o sistema em prod e em dev, é necessário clonar o repositório para uma outra pasta dev
+
+Abra o terminal na pasta Projeto_DEV.
+
+Execute: git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
