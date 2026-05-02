@@ -1,0 +1,21 @@
+# Cria uma nova branch chamada develop
+git checkout -b develop
+
+# Envia essa nova branch para o GitHub
+git push -u origin develop
+
+
+....
+
+
+# 1. Garante que você está na main
+git checkout main
+
+# 2. Traz as atualizações da develop para a main
+git merge develop
+
+# 3. Envia para o GitHub (Ambiente de Produção no Git)
+git push origin main
+
+# 4. Volta para a develop para continuar trabalhando amanhã
+git checkout develop
