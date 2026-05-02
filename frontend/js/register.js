@@ -1,6 +1,6 @@
-// register.js
 
 document.addEventListener('DOMContentLoaded', () => {
+
     // Seleciona os elementos do formulário de cadastro
     const registerForm = document.getElementById('register-form');
     const firstNameInput = document.getElementById('firstName');
@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
             messageDiv.className = '';
 
             try {
-                // Envia os dados para a API de registro no backend
-                const response = await fetch('http://localhost:5000/api/register', {
+                // 2. Uso da API_BASE_URL dinâmica
+                const response = await fetch(`${API_URL}/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

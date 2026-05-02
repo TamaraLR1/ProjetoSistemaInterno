@@ -1,5 +1,3 @@
-const API_URL = 'http://localhost:5000/api';
-const IMG_BASE_URL = 'http://localhost:5000/uploads';
 
 /**
  * Carrega as categorias no grid 10x2

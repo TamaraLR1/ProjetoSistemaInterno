@@ -1,15 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     const productSelect = document.getElementById('product-select');
     const form = document.getElementById('stock-movement-form');
     const historyBody = document.getElementById('history-body');
 
-    // 1. Carregar produtos do vendedor para o Select
+    // 2. Carregar produtos do vendedor para o Select
     const loadProducts = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/products', { credentials: 'include' });
+            // Usando a URL dinâmica
+            const response = await fetch(`${API_URL}/products`, { credentials: 'include' });
             const products = await response.json();
             
-            // Limpa o select antes de preencher (evita duplicados ao recarregar)
             productSelect.innerHTML = '<option value="">Selecione um produto...</option>';
             
             products.forEach(p => {
@@ -23,10 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 2. Carregar o Histórico de Movimentações (NOVO)
+    // 3. Carregar o Histórico de Movimentações
     const loadHistory = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/inventory/history', { credentials: 'include' });
+            // Usando a URL dinâmica
+            const response = await fetch(`${API_URL}/inventory/history`, { credentials: 'include' });
             const history = await response.json();
 
             if (!historyBody) return;
@@ -38,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             history.forEach(move => {
-                // Formatação da data para o padrão brasileiro
                 const date = new Date(move.created_at).toLocaleString('pt-BR');
                 const typeClass = move.movement_type === 'IN' ? 'type-in' : 'type-out';
                 const typeLabel = move.movement_type === 'IN' ? 'Entrada' : 'Saída';
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 3. Registrar Movimentação
+    // 4. Registrar Movimentação
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -71,7 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('http://localhost:5000/api/inventory/move', {
+            // Usando a URL dinâmica
+            const response = await fetch(`${API_URL}/inventory/move`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -80,9 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 alert('Estoque atualizado!');
-                form.reset(); // Limpa o formulário
+                form.reset(); 
                 
-                // Em vez de dar reload na página, recarregamos apenas os dados
                 await loadProducts();
                 await loadHistory();
             } else {

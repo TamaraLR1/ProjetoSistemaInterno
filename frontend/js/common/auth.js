@@ -1,12 +1,9 @@
-const API_AUTH_URL = 'http://localhost:5000/api';
-
 /**
- * 1. Verifica a sessão assim que a página carrega.
- * Agora o data.count reflete a quantidade de PRODUTOS distintos.
+ * 2. Verifica a sessão assim que a página carrega.
  */
 async function checkUserSession() {
     try {
-        const response = await fetch(`${API_AUTH_URL}/cart/count`, { 
+        const response = await fetch(`${API_URL}/cart/count`, { 
             method: 'GET',
             credentials: 'include' 
         });
@@ -14,13 +11,9 @@ async function checkUserSession() {
         if (response.ok) {
             const data = await response.json();
             
-            // data.user contém: id, name, avatar, role
-            // data.count contém: total de produtos únicos no carrinho
             if (data && data.user) {
                 console.log("Login confirmado para:", data.user.name);
                 renderLoggedUserMenu(data.user, data.count);
-                
-                // Função auxiliar para atualizar badges globais se existirem
                 updateGlobalCartBadge(data.count);
             } else {
                 console.log("Navegando como visitante.");
@@ -34,14 +27,13 @@ async function checkUserSession() {
 }
 
 /**
- * 2. Transforma o cabeçalho de "Login" para "Menu do Usuário"
+ * 3. Transforma o cabeçalho de "Login" para "Menu do Usuário"
  */
 function renderLoggedUserMenu(user, cartCount) {
     const authSection = document.getElementById('auth-section');
     const template = document.getElementById('user-logged-template');
 
     if (!authSection || !template) {
-        // Se cair aqui na página de carrinho, certifique-se que o HTML tem esses IDs
         console.warn("Estrutura de Menu Logado não encontrada no HTML.");
         return;
     }
@@ -53,23 +45,23 @@ function renderLoggedUserMenu(user, cartCount) {
     const nameEl = clone.querySelector('#user-name');
     if (nameEl) nameEl.textContent = user.name;
 
-    // Avatar
+    // Avatar Dinâmico
     const avatarEl = clone.querySelector('#user-avatar');
     if (avatarEl) {
         if (user.avatar) {
+            // Se já for uma URL completa (Google/FB), usa direto. Se não, usa nossa IMG_BASE_URL
             avatarEl.src = user.avatar.startsWith('http') 
                 ? user.avatar 
-                : `http://localhost:5000/uploads/${user.avatar}`;
+                : `${IMG_BASE_URL}/${user.avatar}`;
         } else {
             avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
         }
     }
 
-    // Contador do Carrinho (Produtos Únicos)
+    // Contador do Carrinho
     const badgeEl = clone.querySelector('#cart-count-logged');
     if (badgeEl) {
         badgeEl.textContent = cartCount || 0;
-        // Opcional: Esconde a bolinha se estiver zero para um visual mais limpo
         badgeEl.style.display = cartCount > 0 ? 'flex' : 'none';
     }
 
@@ -83,13 +75,13 @@ function renderLoggedUserMenu(user, cartCount) {
         };
     }
 
-    // Logout
+    // Logout Dinâmico
     const logoutBtn = clone.querySelector('#btn-logout');
     if (logoutBtn) {
         logoutBtn.onclick = async (e) => {
             e.preventDefault();
             try {
-                await fetch(`${API_AUTH_URL}/logout`, { 
+                await fetch(`${API_URL}/logout`, { 
                     method: 'POST', 
                     credentials: 'include' 
                 });
@@ -104,8 +96,7 @@ function renderLoggedUserMenu(user, cartCount) {
 }
 
 /**
- * 3. Função Extra: Atualiza badges de carrinho fora do menu de usuário
- * Caso você tenha um ícone de carrinho fixo no topo da página.
+ * 4. Atualiza badges globais
  */
 function updateGlobalCartBadge(count) {
     const globalBadge = document.getElementById('global-cart-count');
@@ -115,9 +106,7 @@ function updateGlobalCartBadge(count) {
     }
 }
 
-/**
- * 4. Eventos Globais
- */
+// Eventos
 document.addEventListener('click', () => {
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) dropdown.classList.remove('active');

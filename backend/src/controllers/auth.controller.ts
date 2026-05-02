@@ -31,8 +31,9 @@ export const loginUser = async (req: Request, res: Response) => {
         res.cookie('authToken', token, {
             httpOnly: true, // Impede acesso via JavaScript (XSS)
             secure: process.env.NODE_ENV === 'production', // Só envia em HTTPS em produção
-            sameSite: 'strict', // Protege contra CSRF
-            path: '/',
+            sameSite: 'strict',
+            domain: process.env.NODE_ENV === 'production' ? '.tamaralr.com.br' : 'localhost',
+            path: '/',                 // Garante que o cookie valha para todo o site
             maxAge: 3600000 // 1 hora
         });
 

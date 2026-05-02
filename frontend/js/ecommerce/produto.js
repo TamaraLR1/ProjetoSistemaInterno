@@ -1,11 +1,10 @@
-const API_URL = 'http://localhost:5000/api';
-const IMG_BASE_URL = 'http://localhost:5000/uploads';
 
 /**
- * 1. Inicialização: Busca os dados do produto na API
+ * 2. Inicialização: Busca os dados do produto na API
  */
 async function initProductDetails() {
     const params = new URLSearchParams(window.location.search);
+    console.log(params);
     const productId = params.get('id');
 
     if (!productId) { 
@@ -23,7 +22,8 @@ async function initProductDetails() {
         renderProduct(product);
     } catch (err) {
         console.error("Erro ao carregar detalhes:", err);
-        document.querySelector('.container').innerHTML = `
+        const mainContainer = document.querySelector('.container') || document.body;
+        mainContainer.innerHTML = `
             <div style="text-align:center; padding: 80px 20px;">
                 <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 20px;"></i>
                 <h2>Produto não encontrado</h2>
@@ -35,42 +35,43 @@ async function initProductDetails() {
 }
 
 /**
- * 2. Renderização: Preenche o HTML e configura a Galeria/Quantidade
+ * 3. Renderização: Preenche o HTML e configura a Galeria/Quantidade
  */
 function renderProduct(product) {
-    // Informações de texto
     document.getElementById('product-name').innerText = product.name;
     document.getElementById('product-description').innerText = product.description || 'Sem descrição disponível.';
     document.getElementById('product-seller').innerText = product.seller_name || 'Loja Oficial';
     document.getElementById('product-price').innerText = `R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}`;
     
-    // Controle de Estoque
     const stockCount = product.stock_quantity || 0;
-    document.getElementById('stock-count').innerText = stockCount;
+    const stockEl = document.getElementById('stock-count');
+    if (stockEl) stockEl.innerText = stockCount;
     
-    // ---------------------------------------------------------
-    // LÓGICA DA IMAGEM PRINCIPAL E GALERIA
-    // ---------------------------------------------------------
+    // Imagem Principal
     const mainImgElement = document.getElementById('product-img');
     const thumbsContainer = document.getElementById('product-thumbs');
 
     if (mainImgElement) {
         const mainImg = product.main_image;
-        mainImgElement.src = mainImg ? (mainImg.startsWith('http') ? mainImg : `${IMG_BASE_URL}/${mainImg}`) : 'https://via.placeholder.com/450?text=Sem+Foto';
+        mainImgElement.src = mainImg 
+            ? (mainImg.startsWith('http') ? mainImg : `${IMG_BASE_URL}/${mainImg}`) 
+            : 'https://via.placeholder.com/450?text=Sem+Foto';
     }
 
+    // Galeria de miniaturas
     if (thumbsContainer && product.all_images) {
         thumbsContainer.innerHTML = '';
         let imagesArray = typeof product.all_images === 'string' ? product.all_images.split(',') : product.all_images;
 
         if (imagesArray.length > 1) {
-            imagesArray.forEach((imgFile, index) => {
+            imagesArray.forEach((imgFile) => {
                 const thumbImg = document.createElement('img');
-                const fullUrl = imgFile.startsWith('http') ? imgFile : `${IMG_BASE_URL}/${imgFile.trim()}`;
+                const cleanFile = imgFile.trim();
+                const fullUrl = cleanFile.startsWith('http') ? cleanFile : `${IMG_BASE_URL}/${cleanFile}`;
                 
                 thumbImg.src = fullUrl;
                 thumbImg.classList.add('thumb-item');
-                if (imgFile === product.main_image) thumbImg.classList.add('active');
+                if (cleanFile === product.main_image) thumbImg.classList.add('active');
 
                 thumbImg.onclick = function() {
                     mainImgElement.src = this.src;
@@ -82,26 +83,22 @@ function renderProduct(product) {
         }
     }
 
-    // ---------------------------------------------------------
-    // CONFIGURAÇÃO DOS BOTÕES DE AÇÃO
-    // ---------------------------------------------------------
+    // Ações
     document.getElementById('btn-add-to-cart').onclick = () => handleCartAction(product.id, 'add_cart');
     document.getElementById('btn-buy-now').onclick = () => handleCartAction(product.id, 'buy_now');
 
-    // Configura o cálculo de frete
     const btnShipping = document.getElementById('btn-calculate-shipping');
-    if (btnShipping) {
-        btnShipping.onclick = calculateShipping;
-    }
+    if (btnShipping) btnShipping.onclick = calculateShipping;
 }
 
 /**
- * 3. Controle de Quantidade (+ / -)
+ * 4. Controle de Quantidade
  */
 function changeQty(value) {
     const qtyInput = document.getElementById('product-qty');
-    const maxStock = parseInt(document.getElementById('stock-count').innerText) || 1;
-    let currentQty = parseInt(qtyInput.value);
+    const stockEl = document.getElementById('stock-count');
+    const maxStock = stockEl ? (parseInt(stockEl.innerText) || 1) : 99;
+    let currentQty = parseInt(qtyInput.value) || 1;
 
     currentQty += value;
 
@@ -112,10 +109,13 @@ function changeQty(value) {
 }
 
 /**
- * 4. Simulação de Frete
+ * 5. Simulação de Frete
  */
 function calculateShipping() {
-    const cep = document.getElementById('cep-input').value.replace(/\D/g, '');
+    const cepInput = document.getElementById('cep-input');
+    if (!cepInput) return;
+    
+    const cep = cepInput.value.replace(/\D/g, '');
     const resultDiv = document.getElementById('shipping-result');
 
     if (cep.length === 8) {
@@ -128,10 +128,11 @@ function calculateShipping() {
 }
 
 /**
- * 5. Ação do Carrinho (Envia ID e Quantidade selecionada)
+ * 6. Ação do Carrinho
  */
 async function handleCartAction(productId, type) {
-    const quantity = parseInt(document.getElementById('product-qty').value) || 1;
+    const qtyInput = document.getElementById('product-qty');
+    const quantity = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
 
     try {
         const response = await fetch(`${API_URL}/cart/add`, {
@@ -164,7 +165,5 @@ async function handleCartAction(productId, type) {
     }
 }
 
-// Globaliza a função changeQty para os botões do HTML poderem acessar
 window.changeQty = changeQty;
-
 document.addEventListener('DOMContentLoaded', initProductDetails);

@@ -18,17 +18,36 @@ import cartRoutes from './routes/cart.routes';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1); // ESSENCIAL para cookies em produção (Cloudflare/Proxy)
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser()); 
 
-// Configuração do CORS
-app.use(cors({
-    origin: 'http://localhost:8000', 
-    credentials: true, 
-}));
+// server.ts
 
+const allowedOrigins = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://ecommerce.tamaralr.com.br',
+    'https://ecommerce.tamaralr.com.br/'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Permite requisições sem origin (como mobile apps ou curl)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'A política CORS para este site não permite acesso da origem informada.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: true,
+    exposedHeaders: ['set-cookie'] // Importante para alguns navegadores visualizarem o cookie
+}));
 
 
 // 1. Define o caminho absoluto para a pasta 'uploads'

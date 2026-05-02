@@ -1,8 +1,5 @@
-const API_URL = 'http://localhost:5000/api';
-const IMG_BASE_URL = 'http://localhost:5000/uploads';
-
 /**
- * 1. Inicialização: Carrega os itens assim que a página abre
+ * 2. Inicialização: Carrega os itens assim que a página abre
  */
 async function initCart() {
     try {
@@ -28,7 +25,7 @@ async function initCart() {
 }
 
 /**
- * 2. Renderização: Constrói as linhas da tabela dinamicamente
+ * 3. Renderização: Constrói as linhas da tabela dinamicamente
  */
 function renderCartTable(items) {
     const tbody = document.getElementById('cart-items-body');
@@ -56,11 +53,16 @@ function renderCartTable(items) {
         const subtotal = price * quantity;
         grandTotal += subtotal;
 
+        // Ajuste dinâmico da imagem para não quebrar no celular
+        const imagePath = item.main_image 
+            ? (item.main_image.startsWith('http') ? item.main_image : `${IMG_BASE_URL}/${item.main_image}`)
+            : 'https://via.placeholder.com/100?text=Sem+Imagem';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>
                 <div class="product-cell">
-                    <img src="${IMG_BASE_URL}/${item.main_image}" alt="${item.name}">
+                    <img src="${imagePath}" alt="${item.name}">
                     <span class="product-name">${item.name}</span>
                 </div>
             </td>
@@ -83,7 +85,7 @@ function renderCartTable(items) {
 }
 
 /**
- * 3. Ação: Atualizar quantidade diretamente na tabela
+ * 4. Ação: Atualizar quantidade diretamente na tabela
  */
 async function updateCartQuantity(productId, newQuantity) {
     if (newQuantity < 1) return;
@@ -97,7 +99,7 @@ async function updateCartQuantity(productId, newQuantity) {
         });
 
         if (response.ok) {
-            initCart(); // Recarrega para atualizar os subtotais e o total geral
+            initCart(); 
         }
     } catch (err) {
         console.error("Erro ao atualizar quantidade:", err);
@@ -105,7 +107,7 @@ async function updateCartQuantity(productId, newQuantity) {
 }
 
 /**
- * 4. Ação: Remover item do carrinho
+ * 5. Ação: Remover item do carrinho
  */
 async function removeCartItem(productId) {
     if (!confirm("Deseja realmente remover este produto do seu carrinho?")) return;
@@ -117,8 +119,7 @@ async function removeCartItem(productId) {
         });
 
         if (response.ok) {
-            initCart(); // Recarrega a lista
-            // Atualiza o contador de itens no cabeçalho se a função existir no auth.js
+            initCart(); 
             if (typeof checkUserSession === 'function') checkUserSession();
         }
     } catch (err) {
@@ -127,13 +128,16 @@ async function removeCartItem(productId) {
 }
 
 /**
- * 5. Auxiliar: Interface para carrinho vazio
+ * 6. Auxiliar: Interface para carrinho vazio
  */
 function showEmptyMessage() {
-    document.getElementById('cart-table').style.display = 'none';
-    document.getElementById('cart-summary').style.display = 'none';
-    document.getElementById('cart-empty-msg').style.display = 'block';
+    const table = document.getElementById('cart-table');
+    const summary = document.getElementById('cart-summary');
+    const msg = document.getElementById('cart-empty-msg');
+    
+    if (table) table.style.display = 'none';
+    if (summary) summary.style.display = 'none';
+    if (msg) msg.style.display = 'block';
 }
 
-// Inicializa quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', initCart);

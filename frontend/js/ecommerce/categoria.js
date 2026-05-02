@@ -1,34 +1,28 @@
-// Configurações de API
-const API_URL = 'http://localhost:5000/api';
-const IMG_BASE_URL = 'http://localhost:5000/uploads'; // Ajuste se suas imagens estiverem em outra pasta
-
+/**
+ * 2. Inicialização: Captura parâmetros da URL e busca produtos
+ */
 async function initCategoryPage() {
-    // 1. Captura os parâmetros da URL do navegador (ex: categoria.html?id=4&name=Roupas)
     const params = new URLSearchParams(window.location.search);
     const catId = params.get('id');
     const catName = params.get('name');
 
-    // Validação básica
     if (!catId) {
         console.error("ID da categoria não encontrado na URL.");
         window.location.href = 'index.html';
         return;
     }
 
-    // 2. Atualiza o título visual da página com o nome vindo da URL
+    // Atualiza o título visual
     const titleElement = document.getElementById('category-name-display');
     if (titleElement) titleElement.innerText = decodeURIComponent(catName);
 
     try {
-        // 3. CHAMADA À API (Ajustada para sua rota específica do Express)
-        // Rota no Back-end: /products/category/:category
-        // URL Gerada: http://localhost:5000/api/public/products/category/4
+        // Chamada à API usando a URL dinâmica
         const response = await fetch(`${API_URL}/public/products/category/${catId}`);
         
         if (!response.ok) throw new Error('Erro ao buscar produtos');
         
         const products = await response.json();
-        
         renderProducts(products);
 
     } catch (err) {
@@ -38,6 +32,9 @@ async function initCategoryPage() {
     }
 }
 
+/**
+ * 3. Renderização dos cards de produto
+ */
 function renderProducts(products) {
     const grid = document.getElementById('category-products-grid');
     const countDisplay = document.getElementById('product-count');
@@ -58,11 +55,11 @@ function renderProducts(products) {
     if (countDisplay) countDisplay.innerText = `${products.length} produtos encontrados de vários vendedores`;
 
     grid.innerHTML = products.map(p => {
+        // Ajuste dinâmico do caminho da imagem
         const imagePath = p.main_image 
             ? (p.main_image.startsWith('http') ? p.main_image : `${IMG_BASE_URL}/${p.main_image}`)
             : 'https://via.placeholder.com/200?text=Sem+Imagem';
 
-        // Envolvemos o card em um link que aponta para produto.html?id=...
         return `
             <div class="product-card" 
                  onclick="window.location.href='produto.html?id=${p.id}'" 
@@ -88,5 +85,4 @@ function renderProducts(products) {
     }).join('');
 }
 
-// Inicializa a página quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', initCategoryPage);

@@ -1,14 +1,14 @@
 // Caminho: frontend/js/produtos/edicao_produto.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Coleta de Elementos
+
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
     const form = document.getElementById('product-edit-form');
     const nameInput = document.getElementById('product-name');
     const descriptionInput = document.getElementById('product-description');
-    const categorySelect = document.getElementById('product-category'); // NOVO: Seleção da categoria
+    const categorySelect = document.getElementById('product-category');
     const priceInput = document.getElementById('product-price');
     const imagesInput = document.getElementById('product-images'); 
     
@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let productID = null; 
 
-    // 2. Validação Inicial do ID
     if (!productId || isNaN(parseInt(productId))) {
         statusMessage.textContent = 'Erro: ID do produto inválido na URL.';
         statusMessage.className = 'message-box error';
@@ -30,12 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (titleElement) titleElement.textContent = `Editando Produto (ID: ${productID})`;
     if (form) form.parentElement.style.display = 'block'; 
 
-    // ===============================================
-    // 3. FUNÇÃO PARA CARREGAR CATEGORIAS (NOVA)
-    // ===============================================
+    // 2. FUNÇÃO PARA CARREGAR CATEGORIAS
     const fetchCategories = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/categories');
+            const response = await fetch(`${API_URL}/categories`);
             if (!response.ok) throw new Error('Falha ao buscar categorias.');
             
             const categories = await response.json();
@@ -54,12 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // ===============================================
-    // 4. FUNÇÃO PARA CARREGAR DETALHES
-    // ===============================================
+    // 3. FUNÇÃO PARA CARREGAR DETALHES
     const fetchProductDetails = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/products/${productID}`, {
+            const response = await fetch(`${API_URL}/products/${productID}`, {
                 method: 'GET',
                 credentials: 'include',
             });
@@ -74,22 +69,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const product = await response.json();
 
-            // Preenche os campos de texto
             nameInput.value = product.name;
             descriptionInput.value = product.description || '';
             priceInput.value = parseFloat(product.price).toFixed(2).replace('.', ','); 
 
-            // NOVO: Seleciona a categoria atual no select
             if (categorySelect && product.category_id) {
                 categorySelect.value = product.category_id;
             }
 
-            // Exibir imagens atuais
             if (currentImagesContainer) {
                 currentImagesContainer.innerHTML = ''; 
                 if (product.image_urls && product.image_urls.length > 0) {
                     product.image_urls.forEach(imageUrl => {
-                        const imgUrl = `http://localhost:5000/uploads/${imageUrl}`;
+                        const imgUrl = `${IMG_BASE_URL}/${imageUrl}`;
                         const imgContainer = document.createElement('div');
                         imgContainer.className = 'current-image-item'; 
                         
@@ -119,15 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // ===============================================
-    // 5. FUNÇÃO PARA SUBMISSÃO (handleEditSubmit)
-    // ===============================================
+    // 4. FUNÇÃO PARA SUBMISSÃO
     const handleEditSubmit = async (event) => {
         event.preventDefault();
         
         const name = nameInput.value.trim();
         const description = descriptionInput.value || '';
-        const category_id = categorySelect.value; // NOVO: Coleta da categoria
+        const category_id = categorySelect.value;
         const priceValue = priceInput.value.replace(',', '.');
         const files = imagesInput.files; 
         
@@ -138,33 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
              return;
         }
 
-        // Validação de arquivos (mantida)
-        if (files && files.length > 0) {
-            const MAX_SIZE_MB = 5;
-            const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-            const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/jfif'];
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (!ALLOWED_TYPES.includes(file.type)) {
-                    alert(`O arquivo "${file.name}" não é permitido.`);
-                    return;
-                }
-                if (file.size > MAX_SIZE_BYTES) {
-                    alert(`O arquivo "${file.name}" excede o limite de 5MB.`);
-                    return;
-                }
-            }
-        }
-
-        statusMessage.textContent = 'Salvando alterações...';
-        statusMessage.className = 'message-box info';
-        statusMessage.style.display = 'block';
-
         const formData = new FormData();
         formData.append('name', name);
         formData.append('description', description);
-        formData.append('category_id', category_id); // NOVO: Inclusão no FormData
+        formData.append('category_id', category_id);
         formData.append('price', parseFloat(priceValue).toFixed(2)); 
 
         if (files && files.length > 0) {
@@ -174,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
-            const response = await fetch(`http://localhost:5000/api/products/${productID}`, {
+            const response = await fetch(`${API_URL}/products/${productID}`, {
                 method: 'PUT',
                 body: formData, 
                 credentials: 'include',
@@ -185,12 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 alert('Produto atualizado com sucesso!');
                 window.location.href = 'listagem_produtos.html';
-            } else if (response.status === 401 || response.status === 403) {
-                alert('Sessão expirada. Redirecionando para o login.');
-                window.location.href = '../../login.html';
             } else {
                 statusMessage.textContent = `Erro: ${data.message || 'Erro desconhecido.'}`;
                 statusMessage.className = 'message-box error';
+                statusMessage.style.display = 'block';
             }
 
         } catch (error) {
@@ -200,10 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 6. Inicialização Sequencial (Importante!)
     if (form) {
         form.addEventListener('submit', handleEditSubmit);
-        // Primeiro carregamos as categorias, depois os detalhes para poder selecionar o valor correto
         fetchCategories().then(() => {
             fetchProductDetails();
         });

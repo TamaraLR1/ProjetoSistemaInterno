@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     const profileForm = document.getElementById('profile-form');
     const firstNameInput = document.getElementById('firstName');
     const lastNameInput = document.getElementById('lastName');
@@ -14,22 +15,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const firstNameError = document.getElementById('firstName-error');
     const lastNameError = document.getElementById('lastName-error');
 
-    // Configurações de validação de imagem
     const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
     const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/jfif'];
 
+    // 2. Carregar Perfil usando a URL dinâmica
     const loadProfile = async () => {
-        const res = await fetch('http://localhost:5000/api/user/info', { credentials: 'include' });
-        if (res.ok) {
-            const data = await res.json();
-            firstNameInput.value = data.user.firstName || '';
-            lastNameInput.value = data.user.lastName || '';
-            emailInput.value = data.user.email || '';
-            if (data.user.avatar_url) {
-                avatarPreview.src = `http://localhost:5000/uploads/${data.user.avatar_url}?t=${Date.now()}`;
-            } else {
-                avatarPreview.src = "../../assets/usuario.png";
+        try {
+            const res = await fetch(`${API_URL}/user/info`, { credentials: 'include' });
+            if (res.ok) {
+                const data = await res.json();
+                firstNameInput.value = data.user.firstName || '';
+                lastNameInput.value = data.user.lastName || '';
+                emailInput.value = data.user.email || '';
+                
+                if (data.user.avatar_url) {
+                    // Busca a foto no local correto (Local ou Produção)
+                    avatarPreview.src = `${IMG_BASE_URL}/${data.user.avatar_url}?t=${Date.now()}`;
+                } else {
+                    avatarPreview.src = "../../assets/usuario.png";
+                }
             }
+        } catch (err) {
+            console.error("Erro ao carregar perfil:", err);
         }
     };
 
@@ -52,30 +59,26 @@ document.addEventListener('DOMContentLoaded', () => {
     editBtn.addEventListener('click', () => toggleMode(true));
     btnChangePhoto.addEventListener('click', () => avatarInput.click());
 
-    // --- VALIDAÇÃO EM TEMPO REAL AO SELECIONAR FOTO ---
     avatarInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Validação de Formato
         if (!ALLOWED_TYPES.includes(file.type)) {
             alert(`O arquivo "${file.name}" não é permitido. Use JPG, PNG, WEBP ou JFIF.`);
-            avatarInput.value = ''; // Limpa o input
+            avatarInput.value = '';
             return;
         }
 
-        // Validação de Tamanho
         if (file.size > MAX_SIZE_BYTES) {
             alert(`O arquivo "${file.name}" é muito grande. O limite é de 5MB.`);
-            avatarInput.value = ''; // Limpa o input
+            avatarInput.value = '';
             return;
         }
 
-        // Se passar nas validações, mostra o preview
         avatarPreview.src = URL.createObjectURL(file);
     });
 
-    // --- LÓGICA DE VALIDAÇÃO E SUBMIT ---
+    // 3. Atualizar Perfil usando a URL dinâmica
     profileForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -108,7 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/user/update', {
+            // Fetch para a URL de produção se não for localhost
+            const response = await fetch(`${API_URL}/user/update`, {
                 method: 'PUT',
                 body: formData,
                 credentials: 'include'
@@ -119,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 location.reload();
             } else {
                 const errorData = await response.json();
-                // Aqui o erro do Multer (5MB ou Formato) vindo do Backend será exibido caso a trava do front falhe
                 alert(errorData.message || 'Erro ao atualizar');
             }
         } catch (err) {

@@ -1,14 +1,15 @@
 // Caminho: frontend/js/produtos/detalhes_produto.js
 
 document.addEventListener('DOMContentLoaded', () => {
+
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
     // Elementos de exibição
     const nameTitle = document.getElementById('product-name-title');
-    const categorySpan = document.getElementById('product-category'); // NOVO
+    const categorySpan = document.getElementById('product-category');
     const priceSpan = document.getElementById('product-price');
-    const stockSpan = document.getElementById('product-stock'); // NOVO
+    const stockSpan = document.getElementById('product-stock');
     const descriptionSpan = document.getElementById('product-description');
     const imagesContainer = document.getElementById('product-images-container');
     const editLink = document.getElementById('edit-link'); 
@@ -26,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- FUNÇÃO DE BUSCA E EXIBIÇÃO ---
     const fetchProductDetails = async () => {
         try {
-            // Usa a rota GET /api/products/:id (protegida)
-            const response = await fetch(`http://localhost:5000/api/products/${productID}`, {
+            // Usa a constante dinâmica API_URL
+            const response = await fetch(`${API_URL}/products/${productID}`, {
                 method: 'GET',
                 credentials: 'include',
             });
@@ -47,26 +48,26 @@ document.addEventListener('DOMContentLoaded', () => {
             // 1. Exibir Detalhes de Texto
             nameTitle.textContent = product.name;
             
-            // Exibe a Categoria (usa o category_name vindo do JOIN no backend)
             if (categorySpan) {
                 categorySpan.textContent = product.category_name || 'Sem categoria';
             }
 
             priceSpan.textContent = `R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}`;
             
-            // Exibe o Estoque
             if (stockSpan) {
                 stockSpan.textContent = product.stock_quantity ?? '0';
             }
 
             descriptionSpan.textContent = product.description || 'Nenhuma descrição fornecida.';
 
-            // 2. Exibir Imagens
+            // 2. Exibir Imagens usando IMG_BASE_URL dinâmico
             imagesContainer.innerHTML = ''; 
             
             if (product.image_urls && product.image_urls.length > 0) {
                 product.image_urls.forEach(imageUrl => {
-                    const imgUrl = `http://localhost:5000/uploads/${imageUrl}`;
+                    // Ajuste aqui para usar a URL de produção se necessário
+                    const imgUrl = imageUrl.startsWith('http') ? imageUrl : `${IMG_BASE_URL}/${imageUrl}`;
+                    
                     const imgElement = document.createElement('img');
                     imgElement.src = imgUrl;
                     imgElement.alt = product.name;
@@ -80,9 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 3. Mostrar links de Ação
-            editLink.style.display = 'inline-block';
-            editLink.href = `edicao_produto.html?id=${productID}`;
-            deleteBtn.style.display = 'inline-block'; 
+            if (editLink) {
+                editLink.style.display = 'inline-block';
+                editLink.href = `edicao_produto.html?id=${productID}`;
+            }
+            if (deleteBtn) {
+                deleteBtn.style.display = 'inline-block'; 
+            }
 
         } catch (error) {
             console.error('Erro ao buscar detalhes do produto:', error);
@@ -93,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FUNÇÃO DE EXCLUSÃO ---
     const handleDelete = async () => {
-        if (!confirm("Tem certeza que deseja DELETAR este produto? Esta ação não pode ser desfeita e removerá todas as imagens associadas.")) {
+        if (!confirm("Tem certeza que deseja DELETAR este produto? Esta ação não pode ser desfeita.")) {
             return; 
         }
         
@@ -101,7 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteBtn.textContent = 'Excluindo...';
 
         try {
-            const response = await fetch(`http://localhost:5000/api/products/${productID}`, {
+            // Usa a constante dinâmica API_URL
+            const response = await fetch(`${API_URL}/products/${productID}`, {
                 method: 'DELETE',
                 credentials: 'include',
             });
@@ -109,11 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 alert('Produto excluído com sucesso!');
                 window.location.href = 'listagem_produtos.html';
-            } else if (response.status === 403) {
-                alert('Acesso negado: Você não tem permissão para excluir este produto.');
-            } else if (response.status === 401) {
-                alert('Sessão expirada. Redirecionando para o login.');
-                window.location.href = '../../login.html';
             } else {
                 const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido.' }));
                 alert(`Falha ao excluir produto: ${errorData.message}`);
@@ -128,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- INICIALIZAÇÃO ---
     fetchProductDetails();
     
     if (deleteBtn) {

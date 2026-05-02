@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     const container = document.getElementById('products-list-container');
     const loadingMessage = document.getElementById('loading-message');
     const errorMessage = document.getElementById('error-message');
@@ -9,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const placeholderPath = '../../assets/placeholder.png'; 
 
+    // Função global para trocar foto (ajustada para ser compatível com as constantes)
     window.trocarFoto = function(el, productId) {
         const mainImg = document.getElementById(`main-img-${productId}`);
         if (mainImg) mainImg.src = el.src;
@@ -26,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = ''; 
 
         try {
-            const url = `http://localhost:5000/api/products?q=${encodeURIComponent(q)}&v=${Date.now()}`; 
+            // 2. Uso da URL dinâmica com Cache Busting
+            const url = `${API_URL}/products?q=${encodeURIComponent(q)}&v=${Date.now()}`; 
             
             const response = await fetch(url, { 
                 method: 'GET',
@@ -45,11 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.innerHTML = `
                     <div style="grid-column: 1/-1; text-align: center; padding: 20px;">
                         <p>Nenhum produto encontrado.</p>
-                        <button onclick="document.getElementById('search-input').value=''; location.reload();" 
+                        <button id="reset-search-btn" 
                                 style="color: #007bff; background: none; border: none; cursor: pointer; text-decoration: underline;">
                             Ver lista completa
                         </button>
                     </div>`;
+                
+                document.getElementById('reset-search-btn')?.addEventListener('click', () => {
+                    searchInput.value = '';
+                    fetchProducts('');
+                });
                 return;
             }
 
@@ -65,19 +73,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     style: 'currency', currency: 'BRL'
                 });
 
-                // --- Lógica de Estoque ---
                 const stock = parseInt(product.stock_quantity || 0);
-                let stockHTML = '';
+                let stockHTML = stock === 0 
+                    ? `<span class="stock-badge out-of-stock">Sem estoque!</span>` 
+                    : `<span class="stock-badge in-stock">Estoque: ${stock} un.</span>`;
 
-                if (stock === 0) {
-                    stockHTML = `<span class="stock-badge out-of-stock">Produto sem estoque!</span>`;
-                } else {
-                    stockHTML = `<span class="stock-badge in-stock">Estoque: ${stock} un.</span>`;
-                }
-                // -------------------------
-
+                // 3. Uso da IMG_BASE_URL dinâmica para a imagem principal
                 const mainImg = imagensArray.length > 0 
-                    ? `http://localhost:5000/uploads/${imagensArray[0]}` 
+                    ? `${IMG_BASE_URL}/${imagensArray[0]}` 
                     : placeholderPath;
 
                 const productCard = document.createElement('div');
@@ -95,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="thumbnails-container">
                         ${imagensArray.map((img, idx) => `
-                            <img src="http://localhost:5000/uploads/${img}" 
+                            <img src="${IMG_BASE_URL}/${img}" 
                                  class="thumbnail-item ${idx === 0 ? 'active' : ''}" 
                                  onmouseover="trocarFoto(this, '${product.id}')"
                                  alt="Miniatura">
@@ -118,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(loadingMessage) loadingMessage.style.display = 'none';
             if(errorMessage) {
                 errorMessage.style.display = 'block';
-                errorMessage.textContent = `Erro ao carregar produtos.`;
+                errorMessage.textContent = `Erro ao conectar com o servidor.`;
             }
         }
     };
