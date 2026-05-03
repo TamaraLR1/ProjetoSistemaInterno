@@ -1,1 +1,5 @@
-node_modules
+# Configurações de ambiente (Portas, senhas, chaves)
+.env
+
+# Dependências (Nunca devem ir para o Git)
+node_modules/
